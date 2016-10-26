@@ -140,3 +140,9 @@ class MachineList(urwid.TreeListBox):
 
     def walker_modified(self):
         urwid.emit_signal(self, 'selection_changed')
+
+    def reload(self):
+        # This should force the whole tree to be re-generated
+        # TODO: Save the currently selected key and try to find it again
+        # after the tree is re-loaded
+        self.walker.set_focus(MachineGroupNode(u'/'))

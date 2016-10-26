@@ -20,6 +20,7 @@ palette = [
     ('focus', 'standout', '', 'standout'),
     ('info header', 'bold', '', 'bold'),
     ('info', 'dark cyan', '', 'underline'),
+    ('info error', 'dark red,bold', '', 'bold'),
     ('state run', 'dark green', '', 'bold'),
     ('state error', 'dark red,bold', '', 'bold'),
     ('state pause', 'brown', '', 'bold'),

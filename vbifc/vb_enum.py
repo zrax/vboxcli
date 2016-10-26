@@ -35,7 +35,7 @@ def DeviceType_text(id):
     if id in _dt_text_cache:
         return _dt_text_cache[id]
     else:
-        return '(Unknown)'
+        return u'(Unknown)'
 
 _ms_text_cache = None
 def MachineState_text(id):
@@ -110,3 +110,59 @@ def MachineState_icon(id):
         return _ms_icon_cache[id]
     else:
         return ('state error', u'?')
+
+_mt_text_cache = None
+def MediumType_text(id):
+    global _mt_text_cache
+    if _mt_text_cache is None:
+        vbox = VBoxWrapper()
+        _mt_text_cache = {
+            vbox.constants.MediumType_Normal: u'Normal',
+            vbox.constants.MediumType_Immutable: u'Immutable',
+            vbox.constants.MediumType_Writethrough: u'Writethrough',
+            vbox.constants.MediumType_Shareable: u'Shareable',
+            vbox.constants.MediumType_Readonly: u'Read-Only',
+            vbox.constants.MediumType_MultiAttach: u'Multi-Attach'
+        }
+    if id in _mt_text_cache:
+        return _mt_text_cache[id]
+    else:
+        return u'(Unknown)'
+
+_pvp_text_cache = None
+def ParavirtProvider_text(id):
+    global _pvp_text_cache
+    if _pvp_text_cache is None:
+        vbox = VBoxWrapper()
+        _pvp_text_cache = {
+            vbox.constants.ParavirtProvider_None: u'',
+            vbox.constants.ParavirtProvider_Default: u'Default',
+            vbox.constants.ParavirtProvider_Legacy: u'Legacy',
+            vbox.constants.ParavirtProvider_Minimal: u'Minimal',
+            vbox.constants.ParavirtProvider_HyperV: u'Hyper-V',
+            vbox.constants.ParavirtProvider_KVM: u'KVM'
+        }
+    if id in _pvp_text_cache:
+        return _pvp_text_cache[id]
+    else:
+        return u'(Unknown)'
+
+_sb_text_cache = None
+def StorageBus_text(id):
+    global _sb_text_cache
+    if _sb_text_cache is None:
+        vbox = VBoxWrapper()
+        _sb_text_cache = {
+            vbox.constants.StorageBus_Null: u'<invalid>',
+            vbox.constants.StorageBus_IDE: u'IDE',
+            vbox.constants.StorageBus_SATA: u'SATA',
+            vbox.constants.StorageBus_SCSI: u'SCSI',
+            vbox.constants.StorageBus_Floppy: u'Floppy',
+            vbox.constants.StorageBus_SAS: u'SAS',
+            vbox.constants.StorageBus_USB: u'USB',
+            vbox.constants.StorageBus_PCIe: u'PCIe'
+        }
+    if id in _sb_text_cache:
+        return _sb_text_cache[id]
+    else:
+        return u'(Unknown)'

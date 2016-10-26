@@ -17,13 +17,13 @@
 
 import urwid
 
-import machine_list
-import machine_info
+from machine_list import MachineList, MachineWidget
+from machine_info import MachineInfo
 
 class TopUI(urwid.Frame):
     def __init__(self):
-        self.mach_list = machine_list.MachineList()
-        self.mach_info = machine_info.MachineInfo()
+        self.mach_list = MachineList()
+        self.mach_info = MachineInfo()
         columns = urwid.Columns([
             ('weight', 1, self.mach_list),
             ('weight', 2, self.mach_info)
@@ -36,12 +36,14 @@ class TopUI(urwid.Frame):
         key = super(TopUI, self).keypress(size, key)
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
+        elif key in ('r', 'R'):
+            self.mach_list.reload()
         else:
             return key
 
     def set_selection(self):
         w = self.mach_list.focus
-        if isinstance(w, machine_list.MachineWidget):
+        if isinstance(w, MachineWidget):
             self.mach_info.show_machine(w.get_node().get_key())
         else:
             self.mach_info.show_machine(None)

@@ -21,7 +21,6 @@ class _VBoxWrapper_Cache(object):
     def __init__(self):
         self.mgr = vboxapi.VirtualBoxManager()
         self.vbox = self.mgr.getVirtualBox()
-        self.session = self.mgr.getSessionObject(self.vbox)
         self.machine_groups = None
         self.machines = None
 
@@ -42,12 +41,16 @@ class VBoxWrapper(object):
         return VBoxWrapper._cache.vbox
 
     @property
-    def session(self):
-        return VBoxWrapper._cache.session
-
-    @property
     def constants(self):
         return VBoxWrapper._cache.mgr.constants
+
+    @property
+    def host(self):
+        return VBoxWrapper._cache.vbox.host
+
+    @property
+    def systemProperties(self):
+        return VBoxWrapper._cache.vbox.systemProperties
 
     @property
     def machine_groups(self):
@@ -66,3 +69,6 @@ class VBoxWrapper(object):
     def drop_cache(self):
         VBoxWrapper._cache.machine_groups = None
         VBoxWrapper._cache.machines = None
+
+    def getSession(self):
+        return VBoxWrapper._cache.mgr.getSessionObject(VBoxWrapper._cache.vbox)

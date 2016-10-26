@@ -15,9 +15,10 @@
 # along with vboxcli; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import os
 import urwid
 
-from vbifc import VBoxWrapper, vb_enum
+from vbifc import VBoxWrapper, vb_enum, vb_text
 
 class MachineInfo(urwid.LineBox):
     def __init__(self):
@@ -25,47 +26,16 @@ class MachineInfo(urwid.LineBox):
         super(MachineInfo, self).__init__(urwid.ListBox(self.info), u'Details')
         self.show_machine(None)
 
-    @staticmethod
-    def get_os_type(machine):
-        vbox = VBoxWrapper()
-        os_type = vbox.vbox.getGuestOSType(machine.OSTypeId)
-        if os_type is None:
-            return u'Unknown'
-        return os_type.description
-
-    @staticmethod
-    def get_boot_order(machine):
-        vbox = VBoxWrapper()
-        maxBootOrder = vbox.vbox.systemProperties.maxBootPosition
-        text = []
-        for i in range(maxBootOrder):
-            devname = vb_enum.DeviceType_text(machine.getBootOrder(i + 1))
-            if devname != u'':
-                text.append(devname)
-        return u', '.join(text)
-
-    @staticmethod
-    def get_accel_summary(machine):
-        # TODO: The Qt UI may also list a (resolved) paravirt backend here
-        vbox = VBoxWrapper()
-        desc = []
-        if machine.getHWVirtExProperty(vbox.constants.HWVirtExPropertyType_Enabled):
-            desc.append(u'VT-x/AMD-V')
-        if machine.getHWVirtExProperty(vbox.constants.HWVirtExPropertyType_NestedPaging):
-            desc.append(u'Nested Paging')
-        if machine.getCPUProperty(vbox.constants.CPUPropertyType_PAE):
-            desc.append(u'PAE/NX')
-        return u', '.join(desc)
-
     def add_header(self, label, space_before=True):
         if space_before:
             self.info.append(urwid.Divider())
         self.info.append(urwid.Text(('info header', label)))
 
-    def add_info(self, label, value, head_width):
-        head = urwid.Padding(urwid.Text(('info key', u'{}:'.format(label))), left=2)
+    def add_info(self, label, value, head_width, left_pad=2):
+        head = urwid.Padding(urwid.Text(('info key', u'{}:'.format(label))),
+                             left=left_pad)
         content = urwid.Text(('info', u'{}'.format(value)))
-        columns = urwid.Columns([(head_width + 4, head), content], 1)
+        columns = urwid.Columns([(head_width + 2 + left_pad, head), content], 1)
         self.info.append(columns)
 
     def show_machine(self, machine):
@@ -74,6 +44,11 @@ class MachineInfo(urwid.LineBox):
             self.info.append(urwid.Text(u'No machine selected'))
             return
 
+        if not machine.accessible:
+            self.info.append(urwid.Text(('info error', u'Machine details inaccessible')))
+            return
+
+        vbox = VBoxWrapper()
         self.info.append(urwid.Text([
             ('info key', u'Current State:  '),
             vb_enum.MachineState_icon(machine.state),
@@ -83,15 +58,22 @@ class MachineInfo(urwid.LineBox):
         head_width = len(u'Name')
         self.add_info(u'Name', machine.name, head_width)
         self.add_info(u'ID', machine.id, head_width)
-        self.add_info(u'OS', self.get_os_type(machine), head_width)
+        self.add_info(u'OS', vb_text.get_os_type(machine), head_width)
 
         self.add_header(u'System')
-        head_width = len(u'Acceleration')
+        if machine.CPUExecutionCap != 100:
+            head_width = len(u'Execution Cap')
+        else:
+            head_width = len(u'Acceleration')
         self.add_info(u'Base Memory', u'{} MiB'.format(machine.memorySize), head_width)
         if machine.CPUCount != 1:
             self.add_info(u'Processors', machine.CPUCount, head_width)
-        self.add_info(u'Boot Order', self.get_boot_order(machine), head_width)
-        self.add_info(u'Acceleration', self.get_accel_summary(machine), head_width)
+        if machine.CPUExecutionCap != 100:
+            self.add_info(u'Execution Cap', u'{}%'.format(machine.CPUExecutionCap), head_width)
+        self.add_info(u'Boot Order', vb_text.get_boot_order(machine), head_width)
+        accel = vb_text.get_accel_summary(machine)
+        if accel != u'':
+            self.add_info(u'Acceleration', accel, head_width)
 
         self.add_header(u'Display')
         if machine.videoCaptureEnabled:
@@ -108,6 +90,18 @@ class MachineInfo(urwid.LineBox):
         else:
             self.add_info(u'RDP Server', u'Disabled', head_width)
         if machine.videoCaptureEnabled:
-            self.add_info(u'Video Capture File', machine.videoCaptureFile, head_width)
+            self.add_info(u'Video Capture File', os.path.basename(machine.videoCaptureFile), head_width)
         else:
             self.add_info(u'Video Capture', u'Disabled', head_width)
+
+        self.add_header(u'Storage')
+        storageControllers = vbox.mgr.getArray(machine, 'storageControllers')
+        for scon in storageControllers:
+            self.info.append(urwid.Padding(urwid.Text(u'Controller: {}'.format(scon.name)), left=2))
+            attachments = machine.getMediumAttachmentsOfController(scon.name)
+            slot_names = [vb_text.get_storage_slot_name(scon.bus, att.port, att.device)
+                          for att in attachments]
+            head_width = len(max(slot_names, key=len))
+            for slot in range(len(attachments)):
+                self.add_info(slot_names[slot], vb_text.get_attachment_desc(attachments[slot]),
+                              head_width, left_pad=4)
