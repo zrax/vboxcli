@@ -204,7 +204,7 @@ class MachineInfo(urwid.LineBox):
                 if sf.autoMount:
                     details.append(u'Auto-Mount')
                 if len(details) > 0:
-                    self.add_info(sf.name, u'{} ({})'.format(sf.hostPath, u', '.join(details), head_width))
+                    self.add_info(sf.name, u'{} ({})'.format(sf.hostPath, u', '.join(details)), head_width)
                 else:
                     self.add_info(sf.name, sf.hostPath, head_width)
 
