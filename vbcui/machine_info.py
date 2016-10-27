@@ -105,3 +105,10 @@ class MachineInfo(urwid.LineBox):
             for slot in range(len(attachments)):
                 self.add_info(slot_names[slot], vb_text.get_attachment_desc(attachments[slot]),
                               head_width, left_pad=4)
+
+        if machine.audioAdapter.enabled:
+            self.add_header(u'Audio')
+            head_width = len(u'Host Driver')
+            audio = machine.audioAdapter
+            self.add_info(u'Host Driver', vb_enum.AudioDriverType_text(audio.audioDriver), head_width)
+            self.add_info(u'Controller', vb_enum.AudioControllerType_text(audio.audioController), head_width)

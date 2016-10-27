@@ -17,6 +17,41 @@
 
 from . import VBoxWrapper
 
+_ac_text_cache = None
+def AudioControllerType_text(id):
+    global _ac_text_cache
+    if _ac_text_cache is None:
+        vbox = VBoxWrapper()
+        _ac_text_cache = {
+            vbox.constants.AudioControllerType_AC97: u'ICH AC97',
+            vbox.constants.AudioControllerType_SB16: u'SoundBlaster 16',
+            vbox.constants.AudioControllerType_HDA: u'Intel HD Audio'
+        }
+    if id in _ac_text_cache:
+        return _ac_text_cache[id]
+    else:
+        return u'(Unknown)'
+
+_ad_text_cache = None
+def AudioDriverType_text(id):
+    global _ad_text_cache
+    if _ad_text_cache is None:
+        vbox = VBoxWrapper()
+        _ad_text_cache = {
+            vbox.constants.AudioDriverType_Null: u'Dummy',
+            vbox.constants.AudioDriverType_WinMM: u'Windows Multimedia',
+            vbox.constants.AudioDriverType_OSS: u'OSS',
+            vbox.constants.AudioDriverType_ALSA: u'ALSA',
+            vbox.constants.AudioDriverType_DirectSound: u'DirectSound',
+            vbox.constants.AudioDriverType_CoreAudio: u'CoreAudio',
+            vbox.constants.AudioDriverType_Pulse: u'PulseAudio',
+            vbox.constants.AudioDriverType_SolAudio: u'Solaris Audio'
+        }
+    if id in _ad_text_cache:
+        return _ad_text_cache[id]
+    else:
+        return u'(Unknown)'
+
 _dt_text_cache = None
 def DeviceType_text(id):
     global _dt_text_cache
