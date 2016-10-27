@@ -164,6 +164,44 @@ def MediumType_text(id):
     else:
         return u'(Unknown)'
 
+_nadt_text_cache = None
+def NetworkAdapterType_text(id):
+    global _nadt_text_cache
+    if _nadt_text_cache is None:
+        vbox = VBoxWrapper()
+        _nadt_text_cache = {
+            vbox.constants.NetworkAdapterType_Null: u'<Invalid>',
+            vbox.constants.NetworkAdapterType_Am79C970A: u'AMD PCNet-PCI II',
+            vbox.constants.NetworkAdapterType_Am79C973: u'AMD PCNet-FAST III',
+            vbox.constants.NetworkAdapterType_I82540EM: u'Intel PRO/1000 MT Desktop',
+            vbox.constants.NetworkAdapterType_I82543GC: u'Intel PRO/1000 T Server',
+            vbox.constants.NetworkAdapterType_I82545EM: u'Intel PRO/1000 MT Server',
+            vbox.constants.NetworkAdapterType_Virtio: u'Paravirtualized'
+        }
+    if id in _nadt_text_cache:
+        return _nadt_text_cache[id]
+    else:
+        return u'(Unknown)'
+
+_natt_text_cache = None
+def NetworkAttachmentType_text(id):
+    global _natt_text_cache
+    if _natt_text_cache is None:
+        vbox = VBoxWrapper()
+        _natt_text_cache = {
+            vbox.constants.NetworkAttachmentType_Null: u'',
+            vbox.constants.NetworkAttachmentType_NAT: u'NAT',
+            vbox.constants.NetworkAttachmentType_Bridged: u'Bridged',
+            vbox.constants.NetworkAttachmentType_Internal: u'Internal',
+            vbox.constants.NetworkAttachmentType_HostOnly: u'Host-Only',
+            vbox.constants.NetworkAttachmentType_Generic: u'Generic',
+            vbox.constants.NetworkAttachmentType_NATNetwork: u'NAT Network'
+        }
+    if id in _natt_text_cache:
+        return _natt_text_cache[id]
+    else:
+        return u'(Unknown)'
+
 _pvp_text_cache = None
 def ParavirtProvider_text(id):
     global _pvp_text_cache

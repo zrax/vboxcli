@@ -94,8 +94,9 @@ class MachineInfo(urwid.LineBox):
         else:
             self.add_info(u'Video Capture', u'Disabled', head_width)
 
-        self.add_header(u'Storage')
         storageControllers = vbox.mgr.getArray(machine, 'storageControllers')
+        if len(storageControllers) > 0:
+            self.add_header(u'Storage')
         for scon in storageControllers:
             self.info.append(urwid.Padding(urwid.Text(u'Controller: {}'.format(scon.name)), left=2))
             attachments = machine.getMediumAttachmentsOfController(scon.name)
@@ -112,3 +113,21 @@ class MachineInfo(urwid.LineBox):
             audio = machine.audioAdapter
             self.add_info(u'Host Driver', vb_enum.AudioDriverType_text(audio.audioDriver), head_width)
             self.add_info(u'Controller', vb_enum.AudioControllerType_text(audio.audioController), head_width)
+
+        maxAdapters = vbox.systemProperties.getMaxNetworkAdapters(machine.chipsetType)
+        adapter_info = []
+        for ad in range(maxAdapters):
+            adapter = machine.getNetworkAdapter(ad)
+            if not adapter.enabled:
+                continue
+            desc = vb_text.get_network_adapter_desc(adapter)
+            if desc != u'':
+                adapter_info.append((adapter.slot, desc))
+        if len(adapter_info) > 0:
+            self.add_header(u'Network')
+            head_width = len(u'Adapter 1')
+            if len(adapter_info) > 9:
+                head_width += 1
+            for adi in adapter_info:
+                slot, desc = adi
+                self.add_info(u'Adapter {}'.format(slot + 1), desc, head_width)

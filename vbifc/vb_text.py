@@ -109,7 +109,8 @@ def get_attachment_desc(attachment):
 
     text += medium.name
     details = []
-    if medium.deviceType == vbox.constants.DeviceType_HardDisk:
+    devType = medium.deviceType
+    if devType == vbox.constants.DeviceType_HardDisk:
         details.append(vb_enum.MediumType_text(medium.type))
         try:
             medium.getEncryptionSettings()
@@ -119,12 +120,37 @@ def get_attachment_desc(attachment):
         if encrypted:
             details.append(u'Encrypted')
 
-    if medium.state == vbox.constants.MediumState_NotCreated:
+    mstate = medium.state
+    if mstate == vbox.constants.MediumState_NotCreated:
         details.append(u'Checking...')
-    elif medium.state == vbox.constants.MediumState_Inaccessible:
+    elif mstate == vbox.constants.MediumState_Inaccessible:
         details.append(u'Inaccessible')
-    elif medium.deviceType == vbox.constants.DeviceType_HardDisk:
+    elif devType == vbox.constants.DeviceType_HardDisk:
         details.append(format_size(medium.logicalSize))
     else:
         details.append(format_size(medium.size))
+    return u'{} ({})'.format(text, u', '.join(details))
+
+def get_network_adapter_desc(adapter):
+    if not adapter.enabled:
+        return u''
+
+    vbox = VBoxWrapper()
+    text = vb_enum.NetworkAdapterType_text(adapter.adapterType)
+    at_type = adapter.attachmentType
+    details = [vb_enum.NetworkAttachmentType_text(at_type)]
+    if at_type == vbox.constants.NetworkAttachmentType_Bridged:
+        details.append(adapter.bridgedInterface)
+    elif at_type == vbox.constants.NetworkAttachmentType_Internal:
+        details.append(adapter.internalNetwork)
+    elif at_type == vbox.constants.NetworkAttachmentType_Internal:
+        details.append(adapter.hostOnlyInterface)
+    elif at_type == vbox.constants.NetworkAttachmentType_Generic:
+        details.append(adapter.genericDriver)
+        names, props = adapter.getProperties(None)
+        for i in range(len(names)):
+            details.append(u'{}={}'.format(names[i], props[i]))
+    elif at_type == vbox.constants.NetworkAttachmentType_NATNetwork:
+        details.append(adapter.NATNetwork)
+
     return u'{} ({})'.format(text, u', '.join(details))
