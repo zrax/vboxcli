@@ -38,6 +38,9 @@ class MachineInfo(urwid.LineBox):
         columns = urwid.Columns([(head_width + 2 + left_pad, head), content], 1)
         self.info.append(columns)
 
+    def add_text(self, value, left_pad=2):
+        self.info.append(urwid.Padding(urwid.Text(value), left=left_pad))
+
     def show_machine(self, machine):
         del self.info[:]
         if machine is None:
@@ -98,7 +101,7 @@ class MachineInfo(urwid.LineBox):
         if len(storageControllers) > 0:
             self.add_header(u'Storage')
         for scon in storageControllers:
-            self.info.append(urwid.Padding(urwid.Text(u'Controller: {}'.format(scon.name)), left=2))
+            self.add_text(u'Controller: {}'.format(scon.name))
             attachments = machine.getMediumAttachmentsOfController(scon.name)
             slot_names = [vb_text.get_storage_slot_name(scon.bus, att.port, att.device)
                           for att in attachments]
@@ -131,3 +134,80 @@ class MachineInfo(urwid.LineBox):
             for adi in adapter_info:
                 slot, desc = adi
                 self.add_info(u'Adapter {}'.format(slot + 1), desc, head_width)
+
+        maxSerialPorts = vbox.systemProperties.serialPortCount
+        serial_info = []
+        for sp in range(maxSerialPorts):
+            port = machine.getSerialPort(sp)
+            if not port.enabled:
+                continue
+            port_text = u'{}: {}'.format(vb_text.serial_port_name(port),
+                                         vb_enum.PortMode_text(port.hostMode))
+            if port.hostMode in (vbox.constants.PortMode_HostPipe,
+                                 vbox.constants.PortMode_HostDevice,
+                                 vbox.constants.PortMode_RawFile,
+                                 vbox.constants.PortMode_TCP):
+                port_text += u' ({})'.format(port.path)
+            serial_info.append((port.slot, port_text))
+        if len(serial_info) > 0:
+            self.add_header(u'Serial Ports')
+            head_width = len(u'Port 1')
+            for si in serial_info:
+                slot, port = si
+                slot.add_info(u'Port {}'.format(slot + 1), port, head_width)
+
+        maxParallelPorts = vbox.systemProperties.parallelPortCount
+        parallel_info = []
+        for pp in range(maxParallelPorts):
+            port = machine.getParallelPort(pp)
+            if not port.enabled:
+                continue
+            port_text = u'{} ({})'.format(vb_text.parallel_port_name(port), port.path)
+            parallel_info.append((port.slot, port_text))
+        if len(parallel_info) > 0:
+            self.add_header(u'Parallel Ports')
+            head_width = len(u'Port 1')
+            for pi in parallel_info:
+                slot, port = pi
+                slot.add_info(u'Port {}'.format(slot + 1), port, head_width)
+
+        usb_filters = machine.USBDeviceFilters
+        if usb_filters is not None and machine.USBProxyAvailable:
+            self.add_header(u'USB')
+            controllers = vbox.mgr.getArray(machine, 'USBControllers')
+            clist = []
+            for c in controllers:
+                clist.append(c.name)
+            head_width = len(u'USB Controller')
+            if len(clist) > 0:
+                self.add_info(u'USB Controller', u', '.join(clist), head_width)
+            else:
+                self.add_info(u'USB Controller', u'Disabled', head_width)
+            filt_active = 0
+            filters = vbox.mgr.getArray(usb_filters, 'deviceFilters')
+            for df in filters:
+                if df.active:
+                    filt_active += 1
+            self.add_info(u'Device Filters', u'{} ({} active)'.format(len(filters), filt_active), head_width)
+
+        sharedFolders = vbox.mgr.getArray(machine, 'sharedFolders')
+        if len(sharedFolders) > 0:
+            self.add_header(u'Shared Folders')
+            head_width = 0
+            for sf in sharedFolders:
+                if len(sf.name) > head_width:
+                    head_width = len(sf.name)
+            for sf in sharedFolders:
+                details = []
+                if not sf.writable:
+                    details.append(u'Read-Only')
+                if sf.autoMount:
+                    details.append(u'Auto-Mount')
+                if len(details) > 0:
+                    self.add_info(sf.name, u'{} ({})'.format(sf.hostPath, u', '.join(details), head_width))
+                else:
+                    self.add_info(sf.name, sf.hostPath, head_width)
+
+        if len(machine.description) > 0:
+            self.add_header(u'Description')
+            self.add_text(('info', machine.description))

@@ -220,6 +220,23 @@ def ParavirtProvider_text(id):
     else:
         return u'(Unknown)'
 
+_pm_text_cache = None
+def PortMode_text(id):
+    global _pm_text_cache
+    if _pm_text_cache is None:
+        vbox = VBoxWrapper()
+        _pm_text_cache = {
+            vbox.constants.PortMode_Disconnected: u'Disconnected',
+            vbox.constants.PortMode_HostPipe: u'Host Pipe',
+            vbox.constants.PortMode_HostDevice: u'Host Device',
+            vbox.constants.PortMode_RawFile: u'Raw File',
+            vbox.constants.PortMode_TCP: u'TCP Socket'
+        }
+    if id in _pm_text_cache:
+        return _pm_text_cache[id]
+    else:
+        return u'(Unknown)'
+
 _sb_text_cache = None
 def StorageBus_text(id):
     global _sb_text_cache

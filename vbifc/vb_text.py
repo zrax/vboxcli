@@ -154,3 +154,23 @@ def get_network_adapter_desc(adapter):
         details.append(adapter.NATNetwork)
 
     return u'{} ({})'.format(text, u', '.join(details))
+
+def serial_port_name(port):
+    if port.IRQ == 4 and port.IOBase == 0x3f8:
+        return u'COM1'
+    if port.IRQ == 3 and port.IOBase == 0x2f8:
+        return u'COM2'
+    if port.IRQ == 4 and port.IOBase == 0x3e8:
+        return u'COM3'
+    if port.IRQ == 3 and port.IOBase == 0x2e8:
+        return u'COM4'
+    return u'Custom (I {}; A 0x{:X})'.format(port.IRQ, port.IOBase)
+
+def parallel_port_name(port):
+    if port.IRQ == 7 and port.IOBase == 0x378:
+        return u'LPT1'
+    if port.IRQ == 5 and port.IOBase == 0x278:
+        return u'LPT2'
+    if port.IRQ == 2 and port.IOBase == 0x3bc:
+        return u'LPT1'
+    return u'Custom (I {}; A 0x{:X})'.format(port.IRQ, port.IOBase)
