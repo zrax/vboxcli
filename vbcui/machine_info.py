@@ -38,6 +38,19 @@ class MachineInfo(urwid.LineBox):
         columns = urwid.Columns([(head_width + 2 + left_pad, head), content], 1)
         self.info.append(columns)
 
+    def add_info_group(self, header, lines, left_pad=2):
+        if len(lines) == 0:
+            return
+        if header is not None:
+            self.add_header(header)
+        head_width = 0
+        for ln in lines:
+            ln_width = len(ln[0])
+            if ln_width > head_width:
+                head_width = ln_width
+        for ln in lines:
+            self.add_info(ln[0], ln[1], head_width, left_pad)
+
     def add_text(self, value, left_pad=2):
         self.info.append(urwid.Padding(urwid.Text(value), left=left_pad))
 
@@ -57,45 +70,35 @@ class MachineInfo(urwid.LineBox):
             vb_enum.MachineState_icon(machine.state),
             ('info', u' ' + vb_enum.MachineState_text(machine.state))]))
 
-        self.add_header(u'General')
-        head_width = len(u'Name')
-        self.add_info(u'Name', machine.name, head_width)
-        self.add_info(u'ID', machine.id, head_width)
-        self.add_info(u'OS', vb_text.get_os_type(machine), head_width)
+        self.add_info_group(u'General', [
+            (u'Name', machine.name),
+            (u'ID', machine.id),
+            (u'OS', vb_text.get_os_type(machine))
+        ])
 
-        self.add_header(u'System')
-        if machine.CPUExecutionCap != 100:
-            head_width = len(u'Execution Cap')
-        else:
-            head_width = len(u'Acceleration')
-        self.add_info(u'Base Memory', u'{} MiB'.format(machine.memorySize), head_width)
+        system_group = [
+            (u'Base Memory', u'{} MiB'.format(machine.memorySize))
+        ]
         if machine.CPUCount != 1:
-            self.add_info(u'Processors', machine.CPUCount, head_width)
+            system_group.append((u'Processors', machine.CPUCount))
         if machine.CPUExecutionCap != 100:
-            self.add_info(u'Execution Cap', u'{}%'.format(machine.CPUExecutionCap), head_width)
-        self.add_info(u'Boot Order', vb_text.get_boot_order(machine), head_width)
+            system_group.append((u'Execution Cap', u'{}%'.format(machine.CPUExecutionCap)))
+        system_group.append((u'Boot Order', vb_text.get_boot_order(machine)))
         accel = vb_text.get_accel_summary(machine)
         if accel != u'':
-            self.add_info(u'Acceleration', accel, head_width)
+            system_group.append((u'Acceleration', accel))
+        self.add_info_group(u'System', system_group)
 
-        self.add_header(u'Display')
-        if machine.videoCaptureEnabled:
-            head_width = len(u'Video Capture File')
-        elif machine.VRDEServer.enabled:
-            head_width = len(u'RDP Server Port')
-        else:
-            head_width = len(u'Video Capture')
-        self.add_info(u'Video Memory', u'{} MiB'.format(machine.VRAMSize), head_width)
+        display_group = [
+            (u'Video Memory', u'{} MiB'.format(machine.VRAMSize))
+        ]
         if machine.monitorCount != 1:
-            self.add_info(u'Screens', machine.monitorCount, head_width)
+            display_group.append((u'Screens', machine.monitorCount))
         if machine.VRDEServer.enabled:
-            self.add_info(u'RDP Server Port', machine.VRDEServer.getVRDEProperty(u'TCP/Ports'), head_width)
-        else:
-            self.add_info(u'RDP Server', u'Disabled', head_width)
+            display_group.append((u'RDP Server Port', machine.VRDEServer.getVRDEProperty(u'TCP/Ports')))
         if machine.videoCaptureEnabled:
-            self.add_info(u'Video Capture File', os.path.basename(machine.videoCaptureFile), head_width)
-        else:
-            self.add_info(u'Video Capture', u'Disabled', head_width)
+            display_group.append((u'Video Capture File', os.path.basename(machine.videoCaptureFile)))
+        self.add_info_group(u'Display', display_group)
 
         storageControllers = vbox.mgr.getArray(machine, 'storageControllers')
         if len(storageControllers) > 0:
@@ -105,38 +108,30 @@ class MachineInfo(urwid.LineBox):
             attachments = machine.getMediumAttachmentsOfController(scon.name)
             slot_names = [vb_text.get_storage_slot_name(scon.bus, att.port, att.device)
                           for att in attachments]
-            head_width = len(max(slot_names, key=len))
-            for slot in range(len(attachments)):
-                self.add_info(slot_names[slot], vb_text.get_attachment_desc(attachments[slot]),
-                              head_width, left_pad=4)
+            self.add_info_group(None, [
+                (slot_names[slot], vb_text.get_attachment_desc(attachments[slot]))
+                    for slot in range(len(attachments))], left_pad=4)
 
         if machine.audioAdapter.enabled:
-            self.add_header(u'Audio')
-            head_width = len(u'Host Driver')
             audio = machine.audioAdapter
-            self.add_info(u'Host Driver', vb_enum.AudioDriverType_text(audio.audioDriver), head_width)
-            self.add_info(u'Controller', vb_enum.AudioControllerType_text(audio.audioController), head_width)
+            self.add_info_group(u'Audio', [
+                (u'Host Driver', vb_enum.AudioDriverType_text(audio.audioDriver)),
+                (u'Controller', vb_enum.AudioControllerType_text(audio.audioController))
+            ])
 
         maxAdapters = vbox.systemProperties.getMaxNetworkAdapters(machine.chipsetType)
-        adapter_info = []
+        adapter_group = []
         for ad in range(maxAdapters):
             adapter = machine.getNetworkAdapter(ad)
             if not adapter.enabled:
                 continue
             desc = vb_text.get_network_adapter_desc(adapter)
             if desc != u'':
-                adapter_info.append((adapter.slot, desc))
-        if len(adapter_info) > 0:
-            self.add_header(u'Network')
-            head_width = len(u'Adapter 1')
-            if len(adapter_info) > 9:
-                head_width += 1
-            for adi in adapter_info:
-                slot, desc = adi
-                self.add_info(u'Adapter {}'.format(slot + 1), desc, head_width)
+                adapter_group.append((u'Adapter {}'.format(adapter.slot + 1), desc))
+        self.add_info_group(u'Network', adapter_group)
 
         maxSerialPorts = vbox.systemProperties.serialPortCount
-        serial_info = []
+        serial_group = []
         for sp in range(maxSerialPorts):
             port = machine.getSerialPort(sp)
             if not port.enabled:
@@ -148,65 +143,51 @@ class MachineInfo(urwid.LineBox):
                                  vbox.constants.PortMode_RawFile,
                                  vbox.constants.PortMode_TCP):
                 port_text += u' ({})'.format(port.path)
-            serial_info.append((port.slot, port_text))
-        if len(serial_info) > 0:
-            self.add_header(u'Serial Ports')
-            head_width = len(u'Port 1')
-            for si in serial_info:
-                slot, port = si
-                slot.add_info(u'Port {}'.format(slot + 1), port, head_width)
+            serial_group.append((u'Port {}'.format(port.slot + 1), port_text))
+        self.add_info_group(u'Serial Ports', serial_group)
 
         maxParallelPorts = vbox.systemProperties.parallelPortCount
-        parallel_info = []
+        parallel_group = []
         for pp in range(maxParallelPorts):
             port = machine.getParallelPort(pp)
             if not port.enabled:
                 continue
             port_text = u'{} ({})'.format(vb_text.parallel_port_name(port), port.path)
-            parallel_info.append((port.slot, port_text))
-        if len(parallel_info) > 0:
-            self.add_header(u'Parallel Ports')
-            head_width = len(u'Port 1')
-            for pi in parallel_info:
-                slot, port = pi
-                slot.add_info(u'Port {}'.format(slot + 1), port, head_width)
+            parallel_group.append((u'Port {}'.format(port.slot + 1), port_text))
+        self.add_info_group(u'Parallel Ports', parallel_group)
 
         usb_filters = machine.USBDeviceFilters
         if usb_filters is not None and machine.USBProxyAvailable:
-            self.add_header(u'USB')
+            usb_group = []
             controllers = vbox.mgr.getArray(machine, 'USBControllers')
             clist = []
             for c in controllers:
                 clist.append(c.name)
-            head_width = len(u'USB Controller')
             if len(clist) > 0:
-                self.add_info(u'USB Controller', u', '.join(clist), head_width)
+                usb_group.append((u'USB Controller', u', '.join(clist)))
             else:
-                self.add_info(u'USB Controller', u'Disabled', head_width)
+                usb_group.append((u'USB Controller', u'Disabled'))
             filt_active = 0
             filters = vbox.mgr.getArray(usb_filters, 'deviceFilters')
             for df in filters:
                 if df.active:
                     filt_active += 1
-            self.add_info(u'Device Filters', u'{} ({} active)'.format(len(filters), filt_active), head_width)
+            usb_group.append((u'Device Filters', u'{} ({} active)'.format(len(filters), filt_active)))
+            self.add_info_group(u'USB', usb_group)
 
         sharedFolders = vbox.mgr.getArray(machine, 'sharedFolders')
-        if len(sharedFolders) > 0:
-            self.add_header(u'Shared Folders')
-            head_width = 0
-            for sf in sharedFolders:
-                if len(sf.name) > head_width:
-                    head_width = len(sf.name)
-            for sf in sharedFolders:
-                details = []
-                if not sf.writable:
-                    details.append(u'Read-Only')
-                if sf.autoMount:
-                    details.append(u'Auto-Mount')
-                if len(details) > 0:
-                    self.add_info(sf.name, u'{} ({})'.format(sf.hostPath, u', '.join(details)), head_width)
-                else:
-                    self.add_info(sf.name, sf.hostPath, head_width)
+        sf_group = []
+        for sf in sharedFolders:
+            details = []
+            if not sf.writable:
+                details.append(u'Read-Only')
+            if sf.autoMount:
+                details.append(u'Auto-Mount')
+            if len(details) > 0:
+                sf_group.append((sf.name, u'{} ({})'.format(sf.hostPath, u', '.join(details))))
+            else:
+                sf_group.append((sf.name, sf.hostPath))
+        self.add_info_group(u'Shared Folders', sf_group)
 
         if len(machine.description) > 0:
             self.add_header(u'Description')
