@@ -17,7 +17,7 @@
 
 import urwid
 
-from machine_list import MachineList, MachineWidget
+from machine_list import MachineList, MachineNode
 from machine_info import MachineInfo
 
 class TopUI(urwid.Frame):
@@ -41,9 +41,8 @@ class TopUI(urwid.Frame):
         else:
             return key
 
-    def set_selection(self):
-        w = self.mach_list.focus
-        if isinstance(w, MachineWidget):
-            self.mach_info.show_machine(w.get_node().get_key())
+    def set_selection(self, sel_node):
+        if isinstance(sel_node, MachineNode) and sel_node.get_key() is not None:
+            self.mach_info.show_machine(sel_node.get_key())
         else:
             self.mach_info.show_machine(None)

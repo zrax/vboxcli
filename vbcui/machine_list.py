@@ -120,15 +120,11 @@ class MachineGroupNode(urwid.ParentNode):
 
 
 class MachineList(urwid.TreeListBox):
-    _signals_inited = False
+    signals = ['selection_changed']
 
     def __init__(self):
         self.walker = urwid.TreeWalker(MachineGroupNode(u'/'))
         super(MachineList, self).__init__(self.walker)
-
-        if not MachineList._signals_inited:
-            urwid.register_signal(MachineList, ['selection_changed'])
-            MachineGroupNode._signals_inited = True
 
         urwid.connect_signal(self.walker, 'modified', self.walker_modified)
 
@@ -139,7 +135,14 @@ class MachineList(urwid.TreeListBox):
         self._command_map['ctrl b'] = urwid.CURSOR_PAGE_UP
 
     def walker_modified(self):
-        urwid.emit_signal(self, 'selection_changed')
+        if self.focus:
+            sel_node = self.focus.get_node()
+            # Force the current selection to get its display updated
+            iw = self.focus.get_inner_widget()
+            iw.set_text(self.focus.get_display_text())
+        else:
+            sel_node = None
+        urwid.emit_signal(self, 'selection_changed', sel_node)
 
     def reload(self):
         # This should force the whole tree to be re-generated
