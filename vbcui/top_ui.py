@@ -36,8 +36,12 @@ class TopUI(urwid.Frame):
         key = super(TopUI, self).keypress(size, key)
         if key in ('q', 'Q'):
             raise urwid.ExitMainLoop()
-        elif key in ('r', 'R'):
+        elif key == 'R':
             self.mach_list.reload()
+        elif key == 'r':
+            if self.mach_list.focus is not None:
+                self.mach_list.focus.reload_text()
+                self.set_selection(self.mach_list.focus.get_node())
         else:
             return key
 

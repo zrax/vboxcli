@@ -43,6 +43,10 @@ class MachineNodeWidget(urwid.TreeWidget):
         else:
             return key
 
+    def reload_text(self):
+        iw = self.get_inner_widget()
+        iw.set_text(self.get_display_text())
+
 
 class MachineWidget(MachineNodeWidget):
     def get_display_text(self):
@@ -137,9 +141,8 @@ class MachineList(urwid.TreeListBox):
     def walker_modified(self):
         if self.focus:
             sel_node = self.focus.get_node()
-            # Force the current selection to get its display updated
-            iw = self.focus.get_inner_widget()
-            iw.set_text(self.focus.get_display_text())
+            # Force the current selection to get its text/icon updated
+            self.focus.reload_text()
         else:
             sel_node = None
         urwid.emit_signal(self, 'selection_changed', sel_node)
