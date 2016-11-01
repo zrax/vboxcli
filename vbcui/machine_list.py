@@ -89,6 +89,10 @@ class MachineNode(urwid.TreeNode):
     def machine(self):
         return self.get_value().machine
 
+    @property
+    def selection_id(self):
+        return self.machine.id
+
     def load_widget(self):
         return MachineNodeWidget(self)
 
@@ -110,6 +114,10 @@ class MachineGroupNode(urwid.ParentNode):
     @property
     def path(self):
         return self.get_value().path
+
+    @property
+    def selection_id(self):
+        return self.path
 
     @property
     def machines(self):
@@ -201,7 +209,17 @@ class MachineList(urwid.TreeListBox):
         urwid.emit_signal(self, 'selection_changed', sel_node)
 
     def reload(self):
+        selection = None
+        if self.focus:
+            sel_node = self.focus.get_node()
+            selection = sel_node.selection_id
+
         # This should force the whole tree to be re-generated
-        # TODO: Save the currently selected key and try to find it again
-        # after the tree is re-loaded
         self.walker.set_focus(MachineGroupNode(u'/'))
+
+        node = self.walker.focus
+        while node is not None:
+            if node.selection_id == selection:
+                self.walker.set_focus(node)
+                break
+            _, node = self.walker.get_next(node)
