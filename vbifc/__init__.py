@@ -56,14 +56,12 @@ class VBoxWrapper(object):
     def machine_groups(self):
         if VBoxWrapper._cache.machine_groups is None:
             VBoxWrapper._cache.machine_groups = self.mgr.getArray(self.vbox, 'machineGroups')
-            VBoxWrapper._cache.machine_groups.sort()
         return VBoxWrapper._cache.machine_groups
 
     @property
     def machines(self):
         if VBoxWrapper._cache.machines is None:
             VBoxWrapper._cache.machines = self.mgr.getArray(self.vbox, 'machines')
-            VBoxWrapper._cache.machines.sort(key=lambda mach: mach.name)
         return VBoxWrapper._cache.machines
 
     def drop_cache(self):

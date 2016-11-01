@@ -46,7 +46,7 @@ class TopUI(urwid.Frame):
             return key
 
     def set_selection(self, sel_node):
-        if isinstance(sel_node, MachineNode) and sel_node.get_key() is not None:
-            self.mach_info.show_machine(sel_node.get_key())
+        if isinstance(sel_node, MachineNode):
+            self.mach_info.show_machine(sel_node.machine)
         else:
             self.mach_info.show_machine(None)

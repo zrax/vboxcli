@@ -19,6 +19,25 @@ import urwid
 
 from vbifc import VBoxWrapper, vb_enum
 
+class MachineNodeKey(object):
+    def __init__(self, machine):
+        self.machine = machine
+
+    def get_display_text(self):
+        return [vb_enum.MachineState_icon(self.machine.state), u' ' + self.machine.name]
+
+
+class MachineGroupNodeKey(object):
+    def __init__(self, path, default_expanded=True):
+        self.path = path
+        self.default_expanded = default_expanded
+
+    def get_display_text(self):
+        if self.path == u'/':
+            return u'Virtual Machines'
+        return self.path[self.path.rfind(u'/')+1:]
+
+
 class MachineNodeWidget(urwid.TreeWidget):
     def __init__(self, node):
         super(MachineNodeWidget, self).__init__(node)
@@ -43,48 +62,54 @@ class MachineNodeWidget(urwid.TreeWidget):
         else:
             return key
 
+    def get_display_text(self):
+        return self.get_node().get_key().get_display_text()
+
     def reload_text(self):
         iw = self.get_inner_widget()
         iw.set_text(self.get_display_text())
 
 
-class MachineWidget(MachineNodeWidget):
-    def get_display_text(self):
-        machine = self.get_node().get_key()
-        return [vb_enum.MachineState_icon(machine.state), u' ' + machine.name]
-
-
 class MachineGroupWidget(MachineNodeWidget):
-    def get_display_text(self):
-        key = self.get_node().get_key()
-        if key == u'/':
-            return u'Virtual Machines'
-        return key[key.rfind(u'/')+1:]
+    def __init__(self, node):
+        super(MachineGroupWidget, self).__init__(node)
+        self.expanded = node.get_key().default_expanded
+        self.update_expanded_icon()
 
 
 class MachineNode(urwid.TreeNode):
-    def __init__(self, machine, parent=None):
+    def __init__(self, node, parent=None):
         if parent is None:
             depth = 0
         else:
             depth = parent.get_depth() + 1
-        urwid.TreeNode.__init__(self, machine, key=machine, parent=parent, depth=depth)
+        urwid.TreeNode.__init__(self, node, key=node, parent=parent, depth=depth)
+
+    @property
+    def machine(self):
+        return self.get_value().machine
 
     def load_widget(self):
-        return MachineWidget(self)
+        return MachineNodeWidget(self)
 
 
 class MachineGroupNode(urwid.ParentNode):
-    _all_groups = None
+    def __init__(self, node, parent=None):
+        if isinstance(node, unicode):
+            # Mostly a shortcut for the initial node creation
+            node = MachineGroupNodeKey(node)
 
-    def __init__(self, path, parent=None):
-        if path == u'/':
+        if node.path == u'/':
             depth = 0
         else:
-            depth = path.count(u'/')
-        super(MachineGroupNode, self).__init__(path, key=path, parent=parent, depth=depth)
+            depth = node.path.count(u'/')
+        super(MachineGroupNode, self).__init__(node, key=node, parent=parent, depth=depth)
         self._machines = None
         self._group_count = None
+
+    @property
+    def path(self):
+        return self.get_value().path
 
     @property
     def machines(self):
@@ -93,28 +118,56 @@ class MachineGroupNode(urwid.ParentNode):
             vbox = VBoxWrapper()
             for mach in vbox.machines:
                 mgroups = vbox.mgr.getArray(mach, 'groups')
-                if self.get_value() in mgroups:
+                if self.path in mgroups:
                     self._machines.append(mach)
         return self._machines
 
     def load_child_keys(self):
-        path = self.get_value()
         subgroups = []
         vbox = VBoxWrapper()
         for group in vbox.machine_groups:
-            if path == group:
+            if self.path == group:
                 continue
-            if group.startswith(path):
-                groupname = group[len(path):]
+            if group.startswith(self.path):
+                groupname = group[len(self.path):]
                 if u'/' in groupname:
                     continue
                 subgroups.append(group)
         self._group_count = len(subgroups)
-        return subgroups + self.machines
+
+        # Try to sort these to match the VirtualBox GUI's sorting
+        # TODO: Allow this to be modified and saved as well
+        order = vbox.vbox.getExtraData(u'GUI/GroupDefinitions' + self.path)
+        children = []
+        machines = self.machines[:]
+        if order is not None:
+            order = order.split(u',')
+            for ob in order:
+                if ob.startswith(u'go=') or ob.startswith(u'gc='):
+                    group = self.path + ob[3:]
+                    children.append(MachineGroupNodeKey(group, ob.startswith(u'go=')))
+                    try:
+                        subgroups.remove(group)
+                    except ValueError:
+                        pass
+                elif ob.startswith(u'm='):
+                    for mach in machines:
+                        if mach.id == ob[2:]:
+                            children.append(MachineNodeKey(mach))
+                            try:
+                                machines.remove(mach)
+                            except ValueError:
+                                pass
+
+        # Ensure any unsorted groups and machines get added as well
+        for group in subgroups:
+            children.append(MachineGroupNodeKey(group))
+        for mach in machines:
+            children.append(MachineNodeKey(mach))
+        return children
 
     def load_child_node(self, key):
-        index = self.get_child_index(key)
-        if index < self._group_count:
+        if isinstance(key, MachineGroupNodeKey):
             return MachineGroupNode(key, parent=self)
         else:
             return MachineNode(key, parent=self)
