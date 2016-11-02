@@ -27,7 +27,7 @@ def main(argv):
     # mess with the initial output
     vbox = VBoxWrapper()
 
-    ui = top_ui.TopUI()
+    ui = urwid.AttrMap(top_ui.TopUI(), 'default')
     loop = urwid.MainLoop(ui, palette)
     loop.run()
     return 0

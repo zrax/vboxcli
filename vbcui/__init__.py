@@ -16,13 +16,34 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 palette = [
-    # Name, foreground, background, mono, [foreground_high, background_high]
-    ('focus', 'standout', '', 'standout'),
-    ('info header', 'bold', '', 'bold'),
-    ('info', 'dark cyan', '', 'underline'),
-    ('info error', 'dark red,bold', '', 'bold'),
-    ('state run', 'dark green', '', 'bold'),
-    ('state error', 'dark red,bold', '', 'bold'),
-    ('state pause', 'brown', '', 'bold'),
-    ('state off', 'dark gray', '', 'bold')
+    # Name,         foreground,         background,     mono
+    ('default',     'light gray',       'black',        ''),
+    ('focus',       'black',            'light gray',   'standout'),
+    ('shortcut',    'white,bold',       'black',        'bold'),
+    ('info header', 'light gray,bold',  'black',        'bold'),
+    ('info key',    'light gray',       'black',        ''),
+    ('info',        'dark cyan',        'black',        'underline'),
+    ('info error',  'dark red,bold',    'black',        'bold'),
+    ('state run',   'dark green',       'black',        'bold'),
+    ('state error', 'dark red,bold',    'black',        'bold'),
+    ('state pause', 'brown',            'black',        'bold'),
+    ('state off',   'dark gray',        'black',        'bold'),
+    ('popup',       'black',            'light gray',   'standout'),
+    ('popup focus', 'light gray',       'black',        ''),
+    ('popup shortcut', 'black,underline',    'light gray',   'bold'),
+    ('menu',        'light gray',       'dark blue',    'standout'),
+    ('menu focus',  'dark blue',        'light gray',   ''),
+    ('menu shortcut', 'white,bold',     'dark blue',    'bold')
 ]
+
+popup_palette_map = {
+    None: 'popup',
+    'focus': 'popup focus',
+    'shortcut': 'popup shortcut'
+}
+
+menu_palette_map = {
+    None: 'menu',
+    'focus': 'menu focus',
+    'shortcut': 'menu shortcut'
+}
