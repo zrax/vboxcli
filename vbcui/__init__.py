@@ -15,11 +15,15 @@
 # along with vboxcli; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import urwid
+
 palette = [
     # Name,         foreground,         background,     mono
     ('default',     'light gray',       'black',        ''),
     ('focus',       'black',            'light gray',   'standout'),
     ('shortcut',    'white,bold',       'black',        'bold'),
+    ('statusbar',   'light gray',       'dark blue',    'standout'),
+    ('progress',    'light gray',       'brown',        ''),
     ('info header', 'light gray,bold',  'black',        'bold'),
     ('info key',    'light gray',       'black',        ''),
     ('info',        'dark cyan',        'black',        'underline'),
@@ -47,3 +51,10 @@ menu_palette_map = {
     'focus': 'menu focus',
     'shortcut': 'menu shortcut'
 }
+
+class VBCUIEventLoop(urwid.MainLoop):
+    instance = None
+
+    def __init__(self, widget):
+        VBCUIEventLoop.instance = self
+        super(VBCUIEventLoop, self).__init__(widget, palette=palette)

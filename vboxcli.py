@@ -19,7 +19,7 @@
 import sys
 import urwid
 
-from vbcui import top_ui, palette
+from vbcui import top_ui, VBCUIEventLoop
 from vbifc import VBoxWrapper
 
 def main(argv):
@@ -27,8 +27,8 @@ def main(argv):
     # mess with the initial output
     vbox = VBoxWrapper()
 
-    ui = urwid.AttrMap(top_ui.TopUI(), 'default')
-    loop = urwid.MainLoop(ui, palette)
+    ui = top_ui.TopUI()
+    loop = VBCUIEventLoop(urwid.AttrMap(ui, 'default'))
     loop.run()
     return 0
 
