@@ -23,7 +23,7 @@ palette = [
     ('focus',       'black',            'light gray',   'standout'),
     ('shortcut',    'white,bold',       'black',        'bold'),
     ('statusbar',   'light gray',       'dark blue',    'standout'),
-    ('progress',    'light gray',       'brown',        ''),
+    ('progress',    'dark blue',        'brown',        ''),
     ('info header', 'light gray,bold',  'black',        'bold'),
     ('info key',    'light gray',       'black',        ''),
     ('info',        'dark cyan',        'black',        'underline'),
@@ -57,4 +57,4 @@ class VBCUIEventLoop(urwid.MainLoop):
 
     def __init__(self, widget):
         VBCUIEventLoop.instance = self
-        super(VBCUIEventLoop, self).__init__(widget, palette=palette)
+        super(VBCUIEventLoop, self).__init__(widget, palette=palette, pop_ups=True)

@@ -215,6 +215,7 @@ class MachineList(urwid.TreeListBox):
             selection = sel_node.selection_id
 
         # This should force the whole tree to be re-generated
+        VBoxWrapper().drop_cache()
         self.walker.set_focus(MachineGroupNode(u'/'))
 
         node = self.walker.focus

@@ -20,9 +20,9 @@ import urwid
 from vbifc import VBoxWrapper
 from machine_list import MachineList, MachineNode
 from machine_info import MachineInfo
-from menus import MenuButton, PopupMenu
+from menus import MenuButton, PopupMenu, MenuBar
 from popups import MessagePopup, ConfirmPopup
-from . import VBCUIEventLoop, popup_palette_map, menu_palette_map
+from . import VBCUIEventLoop, popup_palette_map
 
 class StatusBar(urwid.ProgressBar):
     text_align = urwid.LEFT
@@ -46,14 +46,56 @@ class TopUI(urwid.WidgetPlaceholder):
     def __init__(self):
         self.mach_list = MachineList()
         self.mach_info = MachineInfo()
-        columns = urwid.Columns([
+        self.columns = urwid.Columns([
             (urwid.WEIGHT, 1, self.mach_list),
             (urwid.WEIGHT, 2, self.mach_info)
         ])
+        top_menu = [
+            (u'&File', [
+                MenuButton(u'&Preferences'),
+                urwid.Divider(u'\u2500'),
+                MenuButton(u'&Import Appliance'),
+                MenuButton(u'&Export Appliance'),
+                urwid.Divider(u'\u2500'),
+                MenuButton(u'&Virtual Media Manager'),
+                urwid.Divider(u'\u2500'),
+                MenuButton(u'E&xit', u'q', action=self.quit)
+            ]),
+            (u'&Machine', [
+                MenuButton(u'&New'),
+                MenuButton(u'&Add'),
+                MenuButton(u'&Settings'),
+                MenuButton(u'Cl&one'),
+                MenuButton(u'Remo&ve'),
+                MenuButton(u'Gro&up'),
+                urwid.Divider(u'\u2500'),
+                MenuButton(u'S&tart...', u's', action=self.show_start),
+                MenuButton(u'&Pause'),
+                MenuButton(u'&Reset'),
+                MenuButton(u'Sto&p...'),
+                urwid.Divider(u'\u2500'),
+                MenuButton(u'D&iscard Saved State'),
+                MenuButton(u'Show &Log'),
+                MenuButton(u'Re&fresh')
+            ]),
+            (u'&Devices', [
+                MenuButton(u'&Attach Optical Disk Image'),
+                MenuButton(u'&Remove Disk from Virtual Drive'),
+                urwid.Divider(u'\u2500'),
+                MenuButton(u'Manage &USB Devices'),
+                urwid.Divider(u'\u2500'),
+                MenuButton(u'Insert &Guest Additions CD Image')
+            ]),
+            (u'&Help', [
+                MenuButton(u'&About')
+            ])
+        ]
+        self.menu_bar = MenuBar(top_menu)
         self.status_bar = StatusBar()
-        self.top_frame = urwid.Frame(columns, None, self.status_bar)
+        self.top_frame = urwid.Frame(self.columns, self.menu_bar, self.status_bar)
         super(TopUI, self).__init__(self.top_frame)
 
+        urwid.connect_signal(self.menu_bar, 'popup_closed', self.reset_focus)
         urwid.connect_signal(self.mach_list, 'selection_changed', self.set_selection)
 
     def keypress(self, size, key):
@@ -64,18 +106,23 @@ class TopUI(urwid.WidgetPlaceholder):
             return key
 
         if key in ('q', 'Q'):
-            raise urwid.ExitMainLoop()
+            self.quit()
         elif key == 'R':
             self.mach_list.reload()
         elif key == 'r':
             self.update_selected()
         elif key == 's':
-            if self.mach_list.focus is not None:
-                sel_node = self.mach_list.focus.get_node()
-                if isinstance(sel_node, MachineNode):
-                    self.show_start(sel_node.machine)
+            self.show_start()
+        elif key == 'ctrl t':
+            self.top_frame.focus_position = 'header'
         else:
             return key
+
+    def quit(self, sender=None):
+        raise urwid.ExitMainLoop()
+
+    def reset_focus(self):
+        self.top_frame.focus_position = 'body'
 
     def set_selection(self, sel_node):
         if isinstance(sel_node, MachineNode):
@@ -132,20 +179,25 @@ class TopUI(urwid.WidgetPlaceholder):
         machine, vmtype = params
         self.start_machine(machine, vmtype)
 
-    def show_start(self, machine):
-        menu_items = [
-            MenuButton(u'Start GUI', u'G'),
-            MenuButton(u'Start SDL GUI', u'D'),
-            MenuButton(u'Start Headless', u'H')
-        ]
-        urwid.connect_signal(menu_items[0], 'click', self._on_start_machine, (machine, u'gui'))
-        urwid.connect_signal(menu_items[1], 'click', self._on_start_machine, (machine, u'sdl'))
-        urwid.connect_signal(menu_items[2], 'click', self._on_start_machine, (machine, u'headless'))
-        popup = PopupMenu(menu_items, title=u'Start Machine')
-        urwid.connect_signal(popup, 'close', self.close_popup)
-        cols, rows = popup.get_min_size()
-        self.show_popup(popup, align=urwid.CENTER, width=cols,
-                        valign=urwid.MIDDLE, height=rows)
+    def show_start(self, sender=None):
+        if self.mach_list.focus is None:
+            return
+        sel_node = self.mach_list.focus.get_node()
+        if isinstance(sel_node, MachineNode):
+            machine = sel_node.machine
+            menu_items = [
+                MenuButton(u'Start &GUI', action=self._on_start_machine,
+                           user_data=(machine, u'gui')),
+                MenuButton(u'Start S&DL GUI', action=self._on_start_machine,
+                           user_data=(machine, u'sdl')),
+                MenuButton(u'Start &Headless', action=self._on_start_machine,
+                           user_data=(machine, u'headless'))
+            ]
+            popup = PopupMenu(menu_items, title=u'Start Machine')
+            urwid.connect_signal(popup, 'close', self.close_popup)
+            cols, rows = popup.get_min_size()
+            self.show_popup(popup, align=urwid.CENTER, width=cols,
+                            valign=urwid.MIDDLE, height=rows)
 
     def show_message(self, message, title=None):
         popup = MessagePopup(message, title)
