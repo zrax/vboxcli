@@ -17,7 +17,7 @@
 
 import urwid
 
-from vbifc import VBoxWrapper
+from vbifc import VBoxWrapper, VBoxConstants
 from machine_list import MachineList, MachineNode
 from machine_info import MachineInfo
 from menus import MenuButton, PopupMenu, MenuBar
@@ -91,7 +91,7 @@ class TopUI(urwid.WidgetPlaceholder):
             ])
         ]
         #self.menu_bar = MenuBar(top_menu)
-        self.hint_bar = urwid.Text(u'?: Help  q: Quit  s: Start/Stop VM  e: Edit VM Settings')
+        self.hint_bar = urwid.Text(u'?: Help  q: Quit  s: Start/Stop  e: Edit VM Settings')
         self.status_bar = StatusBar()
         self.top_frame = urwid.Frame(self.columns, urwid.AttrWrap(self.hint_bar, 'statusbar'), self.status_bar)
         super(TopUI, self).__init__(self.top_frame)
@@ -108,6 +108,8 @@ class TopUI(urwid.WidgetPlaceholder):
 
         if key in ('q', 'Q'):
             self.quit()
+        elif key == 'P':
+            self.pause_resume()
         elif key == 'R':
             self.mach_list.reload()
         elif key == 'r':
@@ -165,25 +167,93 @@ class TopUI(urwid.WidgetPlaceholder):
 
     def start_machine(self, machine, vmtype):
         vbox = VBoxWrapper()
+        vbconst = VBoxConstants()
         session = vbox.getSession()
-        progress = machine.launchVMProcess(session, vmtype, u'')
-        self.status_bar.set_text(u'Starting {}'.format(machine.name))
-        if self.progress_bar(progress) and int(progress.resultCode) == 0:
+        try:
+            progress = machine.launchVMProcess(session, vmtype, u'')
+            self.status_bar.set_text(u'Starting {}'.format(machine.name))
+            self.progress_bar(progress)
+        except Exception as ex:
+            self.show_message(vbox.exceptMessage(ex), title=u'VirtualBox Exception')
+        if session.state == vbconst.SessionState_Locked:
             session.unlockMachine()
         self.update_selected()
         self.status_bar.set_text(u'')
 
     def _on_start_machine(self, sender, params):
-        self.close_popup()
+        self.close_popup(sender)
         machine, vmtype = params
         self.start_machine(machine, vmtype)
+
+    def get_running_session(self, machine):
+        # Must unlock the session if one is returned
+        vbox = VBoxWrapper()
+        vbconst = VBoxConstants()
+        session = vbox.getSession()
+        machine.lockMachine(session, vbconst.LockType_Shared)
+        if session.state != vbconst.SessionState_Locked:
+            self.show_message(u'Could not lock session', title=u'Error')
+            return None
+        else:
+            return session
+
+    def save_state(self, machine):
+        session = self.get_running_session(machine)
+        try:
+            progress = session.machine.saveState()
+            self.status_bar.set_text(u'Saving {}'.format(machine.name))
+            self.progress_bar(progress)
+        except Exception as ex:
+            vbox = VBoxWrapper()
+            self.show_message(vbox.exceptMessage(ex), title=u'VirtualBox Exception')
+        self.update_selected()
+        self.status_bar.set_text(u'')
+
+    def _on_save_state(self, sender, machine):
+        self.close_popup(sender)
+        self.save_state(machine)
+
+    def console_cmd(self, machine, command):
+        vbconst = VBoxConstants()
+        session = self.get_running_session(machine)
+        console = session.console
+        try:
+            if command == 'pause':
+                console.pause()
+            elif command == 'resume':
+                console.resume()
+            elif command == 'acpi_button':
+                console.powerButton()
+            elif command == 'power_down':
+                console.powerDown()
+            else:
+                self.show_message(u'Unsupported command: {}'.format(command),
+                                  title=u'Internal Error')
+        except Exception as ex:
+            vbox = VBoxWrapper()
+            self.show_message(vbox.exceptMessage(ex), title=u'VirtualBox Exception')
+
+        if session.state == vbconst.SessionState_Locked:
+            session.unlockMachine()
+        self.update_selected()
+
+    def _on_console_cmd(self, sender, params):
+        self.close_popup(sender)
+        machine, command = params
+        self.console_cmd(machine, command)
 
     def show_start(self, sender=None):
         if self.mach_list.focus is None:
             return
         sel_node = self.mach_list.focus.get_node()
-        if isinstance(sel_node, MachineNode):
-            machine = sel_node.machine
+        if not isinstance(sel_node, MachineNode):
+            return
+
+        vbconst = VBoxConstants()
+        machine = sel_node.machine
+        if machine.state in {vbconst.MachineState_PoweredOff,
+                             vbconst.MachineState_Aborted,
+                             vbconst.MachineState_Saved}:
             menu_items = [
                 MenuButton(u'Start &GUI', action=self._on_start_machine,
                            user_data=(machine, u'gui')),
@@ -192,11 +262,40 @@ class TopUI(urwid.WidgetPlaceholder):
                 MenuButton(u'Start &Headless', action=self._on_start_machine,
                            user_data=(machine, u'headless'))
             ]
-            popup = PopupMenu(menu_items, title=u'Start Machine')
-            urwid.connect_signal(popup, 'close', self.close_popup)
-            cols, rows = popup.get_min_size()
-            self.show_popup(popup, align=urwid.CENTER, width=cols,
-                            valign=urwid.MIDDLE, height=rows)
+            title = u'Start Machine'
+        elif machine.state in {vbconst.MachineState_Running,
+                               vbconst.MachineState_Paused}:
+            menu_items = [
+                MenuButton(u'Sa&ve State', action=self._on_save_state,
+                           user_data=machine),
+                MenuButton(u'ACPI Sh&utdown', action=self._on_console_cmd,
+                           user_data=(machine, 'acpi_button')),
+                MenuButton(u'Po&wer Off', action=self._on_console_cmd,
+                           user_data=(machine, 'power_down'))
+            ]
+            title = u'Stop Machine'
+        else:
+            return
+
+        popup = PopupMenu(menu_items, title=title)
+        urwid.connect_signal(popup, 'close', self.close_popup)
+        cols, rows = popup.get_min_size()
+        self.show_popup(popup, align=urwid.CENTER, width=cols,
+                        valign=urwid.MIDDLE, height=rows)
+
+    def pause_resume(self, sender=None):
+        if self.mach_list.focus is None:
+            return
+        sel_node = self.mach_list.focus.get_node()
+        if not isinstance(sel_node, MachineNode):
+            return
+
+        vbconst = VBoxConstants()
+        machine = sel_node.machine
+        if machine.state == vbconst.MachineState_Running:
+            self.console_cmd(machine, 'pause')
+        elif machine.state == vbconst.MachineState_Paused:
+            self.console_cmd(machine, 'resume')
 
     def show_message(self, message, title=None):
         popup = MessagePopup(message, title)

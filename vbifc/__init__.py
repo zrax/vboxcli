@@ -71,6 +71,12 @@ class VBoxWrapper(object):
     def getSession(self):
         return VBoxWrapper._cache.mgr.getSessionObject(VBoxWrapper._cache.vbox)
 
+    def exceptMessage(self, ex):
+        if VBoxWrapper._cache.mgr.errIsOurXcptKind(ex):
+            return VBoxWrapper._cache.mgr.xcptGetMessage(ex)
+        else:
+            return unicode(ex)
+
 
 def VBoxConstants():
     vbox = VBoxWrapper()

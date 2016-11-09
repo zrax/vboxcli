@@ -22,7 +22,7 @@ palette = [
     ('default',     'light gray',       'black',        ''),
     ('focus',       'black',            'light gray',   'standout'),
     ('shortcut',    'white,bold',       'black',        'bold'),
-    ('statusbar',   'light gray',       'dark blue',    'standout'),
+    ('statusbar',   'white,bold',       'dark blue',    'standout'),
     ('progress',    'dark blue',        'brown',        ''),
     ('info header', 'light gray,bold',  'black',        'bold'),
     ('info key',    'light gray',       'black',        ''),
