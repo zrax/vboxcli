@@ -90,12 +90,13 @@ class TopUI(urwid.WidgetPlaceholder):
                 MenuButton(u'&About')
             ])
         ]
-        self.menu_bar = MenuBar(top_menu)
+        #self.menu_bar = MenuBar(top_menu)
+        self.hint_bar = urwid.Text(u'?: Help  q: Quit  s: Start/Stop VM  e: Edit VM Settings')
         self.status_bar = StatusBar()
-        self.top_frame = urwid.Frame(self.columns, self.menu_bar, self.status_bar)
+        self.top_frame = urwid.Frame(self.columns, urwid.AttrWrap(self.hint_bar, 'statusbar'), self.status_bar)
         super(TopUI, self).__init__(self.top_frame)
 
-        urwid.connect_signal(self.menu_bar, 'popup_closed', self.reset_focus)
+        #urwid.connect_signal(self.menu_bar, 'popup_closed', self.reset_focus)
         urwid.connect_signal(self.mach_list, 'selection_changed', self.set_selection)
 
     def keypress(self, size, key):
@@ -113,8 +114,6 @@ class TopUI(urwid.WidgetPlaceholder):
             self.update_selected()
         elif key == 's':
             self.show_start()
-        elif key == 'ctrl t':
-            self.top_frame.focus_position = 'header'
         else:
             return key
 
