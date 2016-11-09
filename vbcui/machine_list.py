@@ -34,7 +34,7 @@ class MachineGroupNodeKey(object):
 
     def get_display_text(self):
         if self.path == u'/':
-            return u'Virtual Machines'
+            return _(u'Virtual Machines')
         return self.path[self.path.rfind(u'/')+1:]
 
 
@@ -223,4 +223,4 @@ class MachineList(urwid.TreeListBox):
             if node.selection_id == selection:
                 self.walker.set_focus(node)
                 break
-            _, node = self.walker.get_next(node)
+            widget, node = self.walker.get_next(node)

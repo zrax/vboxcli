@@ -51,47 +51,47 @@ class TopUI(urwid.WidgetPlaceholder):
             (urwid.WEIGHT, 2, self.mach_info)
         ])
         top_menu = [
-            (u'&File', [
-                MenuButton(u'&Preferences'),
+            (_(u'&File'), [
+                MenuButton(_(u'&Preferences')),
                 urwid.Divider(u'\u2500'),
-                MenuButton(u'&Import Appliance'),
-                MenuButton(u'&Export Appliance'),
+                MenuButton(_(u'&Import Appliance')),
+                MenuButton(_(u'&Export Appliance')),
                 urwid.Divider(u'\u2500'),
-                MenuButton(u'&Virtual Media Manager'),
+                MenuButton(_(u'&Virtual Media Manager')),
                 urwid.Divider(u'\u2500'),
-                MenuButton(u'E&xit', u'q', action=self.quit)
+                MenuButton(_(u'E&xit'), u'q', action=self.quit)
             ]),
-            (u'&Machine', [
-                MenuButton(u'&New'),
-                MenuButton(u'&Add'),
-                MenuButton(u'&Settings'),
-                MenuButton(u'Cl&one'),
-                MenuButton(u'Remo&ve'),
-                MenuButton(u'Gro&up'),
+            (_(u'&Machine'), [
+                MenuButton(_(u'&New')),
+                MenuButton(_(u'&Add')),
+                MenuButton(_(u'&Settings')),
+                MenuButton(_(u'Cl&one')),
+                MenuButton(_(u'Remo&ve')),
+                MenuButton(_(u'Gro&up')),
                 urwid.Divider(u'\u2500'),
-                MenuButton(u'S&tart...', u's', action=self.show_start),
-                MenuButton(u'&Pause'),
-                MenuButton(u'&Reset'),
-                MenuButton(u'Sto&p...'),
+                MenuButton(_(u'S&tart...'), u's', action=self.show_start),
+                MenuButton(_(u'&Pause')),
+                MenuButton(_(u'&Reset')),
+                MenuButton(_(u'Sto&p...')),
                 urwid.Divider(u'\u2500'),
-                MenuButton(u'D&iscard Saved State'),
-                MenuButton(u'Show &Log'),
-                MenuButton(u'Re&fresh')
+                MenuButton(_(u'D&iscard Saved State')),
+                MenuButton(_(u'Show &Log')),
+                MenuButton(_(u'Re&fresh'))
             ]),
-            (u'&Devices', [
-                MenuButton(u'&Attach Optical Disk Image'),
-                MenuButton(u'&Remove Disk from Virtual Drive'),
+            (_(u'&Devices'), [
+                MenuButton(_(u'&Attach Optical Disk Image')),
+                MenuButton(_(u'&Remove Disk from Virtual Drive')),
                 urwid.Divider(u'\u2500'),
-                MenuButton(u'Manage &USB Devices'),
+                MenuButton(_(u'Manage &USB Devices')),
                 urwid.Divider(u'\u2500'),
-                MenuButton(u'Insert &Guest Additions CD Image')
+                MenuButton(_(u'Insert &Guest Additions CD Image'))
             ]),
-            (u'&Help', [
-                MenuButton(u'&About')
+            (_(u'&Help'), [
+                MenuButton(_(u'&About'))
             ])
         ]
         #self.menu_bar = MenuBar(top_menu)
-        self.hint_bar = urwid.Text(u'?: Help  q: Quit  s: Start/Stop  e: Edit VM Settings')
+        self.hint_bar = urwid.Text(_(u'?: Help  q: Quit  s: Start/Stop  e: Edit VM Settings'))
         self.status_bar = StatusBar()
         self.top_frame = urwid.Frame(self.columns, urwid.AttrWrap(self.hint_bar, 'statusbar'), self.status_bar)
         super(TopUI, self).__init__(self.top_frame)
@@ -157,12 +157,12 @@ class TopUI(urwid.WidgetPlaceholder):
                 return True
             err = progress.errorInfo
             self.show_message(
-                u"Error in module '{}': {}".format(err.component, err.text),
-                title=u'Error starting VM')
+                _(u"Error in module '{}': {}").format(err.component, err.text),
+                title=_(u'Error starting VM'))
         except KeyboardInterrupt:
             if progress.cancelable:
                 progress.cancel()
-            self.show_message(u'Operation aborted', title=u'Error starting VM')
+            self.show_message(_(u'Operation aborted'), title=_(u'Error starting VM'))
         return False
 
     def start_machine(self, machine, vmtype):
@@ -171,10 +171,10 @@ class TopUI(urwid.WidgetPlaceholder):
         session = vbox.getSession()
         try:
             progress = machine.launchVMProcess(session, vmtype, u'')
-            self.status_bar.set_text(u'Starting {}'.format(machine.name))
+            self.status_bar.set_text(_(u'Starting {}').format(machine.name))
             self.progress_bar(progress)
         except Exception as ex:
-            self.show_message(vbox.exceptMessage(ex), title=u'VirtualBox Exception')
+            self.show_message(vbox.exceptMessage(ex), title=_(u'VirtualBox Exception'))
         if session.state == vbconst.SessionState_Locked:
             session.unlockMachine()
         self.update_selected()
@@ -192,7 +192,7 @@ class TopUI(urwid.WidgetPlaceholder):
         session = vbox.getSession()
         machine.lockMachine(session, vbconst.LockType_Shared)
         if session.state != vbconst.SessionState_Locked:
-            self.show_message(u'Could not lock session', title=u'Error')
+            self.show_message(_(u'Could not lock session'), title=_(u'Error'))
             return None
         else:
             return session
@@ -201,11 +201,11 @@ class TopUI(urwid.WidgetPlaceholder):
         session = self.get_running_session(machine)
         try:
             progress = session.machine.saveState()
-            self.status_bar.set_text(u'Saving {}'.format(machine.name))
+            self.status_bar.set_text(_(u'Saving {}').format(machine.name))
             self.progress_bar(progress)
         except Exception as ex:
             vbox = VBoxWrapper()
-            self.show_message(vbox.exceptMessage(ex), title=u'VirtualBox Exception')
+            self.show_message(vbox.exceptMessage(ex), title=_(u'VirtualBox Exception'))
         self.update_selected()
         self.status_bar.set_text(u'')
 
@@ -227,11 +227,11 @@ class TopUI(urwid.WidgetPlaceholder):
             elif command == 'power_down':
                 console.powerDown()
             else:
-                self.show_message(u'Unsupported command: {}'.format(command),
-                                  title=u'Internal Error')
+                self.show_message(_(u'Unsupported command: {}').format(command),
+                                  title=_(u'Internal Error'))
         except Exception as ex:
             vbox = VBoxWrapper()
-            self.show_message(vbox.exceptMessage(ex), title=u'VirtualBox Exception')
+            self.show_message(vbox.exceptMessage(ex), title=_(u'VirtualBox Exception'))
 
         if session.state == vbconst.SessionState_Locked:
             session.unlockMachine()
@@ -255,25 +255,25 @@ class TopUI(urwid.WidgetPlaceholder):
                              vbconst.MachineState_Aborted,
                              vbconst.MachineState_Saved}:
             menu_items = [
-                MenuButton(u'Start &GUI', action=self._on_start_machine,
+                MenuButton(_(u'Start &GUI'), action=self._on_start_machine,
                            user_data=(machine, u'gui')),
-                MenuButton(u'Start S&DL GUI', action=self._on_start_machine,
+                MenuButton(_(u'Start S&DL GUI'), action=self._on_start_machine,
                            user_data=(machine, u'sdl')),
-                MenuButton(u'Start &Headless', action=self._on_start_machine,
+                MenuButton(_(u'Start &Headless'), action=self._on_start_machine,
                            user_data=(machine, u'headless'))
             ]
-            title = u'Start Machine'
+            title = _(u'Start Machine')
         elif machine.state in {vbconst.MachineState_Running,
                                vbconst.MachineState_Paused}:
             menu_items = [
-                MenuButton(u'Sa&ve State', action=self._on_save_state,
+                MenuButton(_(u'Sa&ve State'), action=self._on_save_state,
                            user_data=machine),
-                MenuButton(u'ACPI Sh&utdown', action=self._on_console_cmd,
+                MenuButton(_(u'ACPI Sh&utdown'), action=self._on_console_cmd,
                            user_data=(machine, 'acpi_button')),
-                MenuButton(u'Po&wer Off', action=self._on_console_cmd,
+                MenuButton(_(u'Po&wer Off'), action=self._on_console_cmd,
                            user_data=(machine, 'power_down'))
             ]
-            title = u'Stop Machine'
+            title = _(u'Stop Machine')
         else:
             return
 

@@ -17,12 +17,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import sys
+import gettext
 import urwid
 
 from vbcui import top_ui, VBCUIEventLoop
 from vbifc import VBoxWrapper
 
 def main(argv):
+    gettext.install('vboxcli', unicode=True)
+
     # Ensure this gets set up before we start doing curses stuff that might
     # mess with the initial output
     vbox = VBoxWrapper()

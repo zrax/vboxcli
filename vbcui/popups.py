@@ -46,7 +46,7 @@ class MessagePopup(urwid.LineBox):
     signals = ['close']
 
     def __init__(self, message, title=None):
-        self.ok_button = PopupButton(u'OK')
+        self.ok_button = PopupButton(_(u'OK'))
         urwid.connect_signal(self.ok_button, 'click', self._close)
         content = urwid.Pile([
             urwid.Text(message),
@@ -76,9 +76,9 @@ class ConfirmPopup(urwid.LineBox):
     signals = ['accepted', 'rejected']
 
     def __init__(self, message, title=None):
-        ok_button = PopupButton(u'OK')
+        ok_button = PopupButton(_(u'OK'))
         urwid.connect_signal(ok_button, 'click', self._accept)
-        cancel_button = PopupButton(u'Cancel')
+        cancel_button = PopupButton(_(u'Cancel'))
         urwid.connect_signal(cancel_button, 'click', self._reject)
         content = urwid.Pile([
             urwid.Text(message),

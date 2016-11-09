@@ -36,7 +36,7 @@ def get_os_type(machine):
     vbox = VBoxWrapper()
     os_type = vbox.vbox.getGuestOSType(machine.OSTypeId)
     if os_type is None:
-        return u'Unknown'
+        return _(u'Unknown')
     return os_type.description
 
 def get_boot_order(machine):
@@ -55,42 +55,42 @@ def get_accel_summary(machine):
     desc = []
     if vbox.host.getProcessorFeature(vbconst.ProcessorFeature_HWVirtEx):
         if machine.getHWVirtExProperty(vbconst.HWVirtExPropertyType_Enabled):
-            desc.append(u'VT-x/AMD-V')
+            desc.append(_(u'VT-x/AMD-V'))
             if machine.getHWVirtExProperty(vbconst.HWVirtExPropertyType_NestedPaging):
-                desc.append(u'Nested Paging')
+                desc.append(_(u'Nested Paging'))
     if machine.getCPUProperty(vbconst.CPUPropertyType_PAE):
-        desc.append(u'PAE/NX')
+        desc.append(_(u'PAE/NX'))
     pvirt = vb_enum.ParavirtProvider_text(machine.getEffectiveParavirtProvider())
     if pvirt != u'':
-        desc.append(u'{} Paravirtualization'.format(pvirt))
+        desc.append(_(u'{} Paravirtualization').format(pvirt))
     return u', '.join(desc)
 
 def get_storage_slot_name(bus, port, device):
     vbconst = VBoxConstants()
-    text = vb_enum.StorageBus_text(bus)
+    text = [vb_enum.StorageBus_text(bus)]
     if bus == vbconst.StorageBus_IDE:
         if port == 0:
-            text += u' Primary'
+            text.append(_(u'Primary'))
         elif port == 1:
-            text += u' Secondary'
+            text.append(_(u'Secondary'))
         else:
-            text += u' <invalid>'
+            text.append(_(u'<invalid>'))
         if device == 0:
-            text += u' Master'
+            text.append(_(u'Master'))
         elif device == 1:
-            text += u' Slave'
+            text.append(_(u'Slave'))
         else:
-            text += u' <invalid>'
+            text.append(_(u'<invalid>'))
     elif bus == vbconst.StorageBus_Floppy:
-        text += u' Device {}'.format(device)
+        text.append(_(u'Device {}').format(device))
     else:
-        text += u' Port {}'.format(port)
-    return text
+        text.append(_(u'Port {}').format(port))
+    return u' '.join(text)
 
 def get_attachment_desc(attachment):
     vbconst = VBoxConstants()
     if attachment.type == vbconst.DeviceType_DVD:
-        text = u'[Optical Drive] '
+        text = _(u'[Optical Drive]') + u' '
     else:
         text = u''
 
@@ -99,13 +99,13 @@ def get_attachment_desc(attachment):
     # medium (which may be snapshotted, etc)
     medium = attachment.medium
     if medium is None:
-        return text + u'Empty'
+        return text + _(u'Empty')
 
     if medium.hostDrive:
         if medium.description == u'':
-            text += u"Host Drive '{}'".format(medium.location)
+            text += _(u"Host Drive '{}'").format(medium.location)
         else:
-            text += u'Host Drive {} ({})'.format(medium.description, medium.name)
+            text += _(u'Host Drive {} ({})').format(medium.description, medium.name)
         return text
 
     text += medium.name
@@ -119,13 +119,13 @@ def get_attachment_desc(attachment):
         except:
             encrypted = False
         if encrypted:
-            details.append(u'Encrypted')
+            details.append(_(u'Encrypted'))
 
     mstate = medium.state
     if mstate == vbconst.MediumState_NotCreated:
-        details.append(u'Checking...')
+        details.append(_(u'Checking...'))
     elif mstate == vbconst.MediumState_Inaccessible:
-        details.append(u'Inaccessible')
+        details.append(_(u'Inaccessible'))
     elif devType == vbconst.DeviceType_HardDisk:
         details.append(format_size(medium.logicalSize))
     else:
@@ -158,20 +158,20 @@ def get_network_adapter_desc(adapter):
 
 def serial_port_name(port):
     if port.IRQ == 4 and port.IOBase == 0x3f8:
-        return u'COM1'
+        return _(u'COM1')
     if port.IRQ == 3 and port.IOBase == 0x2f8:
-        return u'COM2'
+        return _(u'COM2')
     if port.IRQ == 4 and port.IOBase == 0x3e8:
-        return u'COM3'
+        return _(u'COM3')
     if port.IRQ == 3 and port.IOBase == 0x2e8:
-        return u'COM4'
-    return u'Custom (I {}; A 0x{:X})'.format(port.IRQ, port.IOBase)
+        return _(u'COM4')
+    return _(u'Custom (I {}; A 0x{:X})').format(port.IRQ, port.IOBase)
 
 def parallel_port_name(port):
     if port.IRQ == 7 and port.IOBase == 0x378:
-        return u'LPT1'
+        return _(u'LPT1')
     if port.IRQ == 5 and port.IOBase == 0x278:
-        return u'LPT2'
+        return _(u'LPT2')
     if port.IRQ == 2 and port.IOBase == 0x3bc:
-        return u'LPT1'
-    return u'Custom (I {}; A 0x{:X})'.format(port.IRQ, port.IOBase)
+        return _(u'LPT1')
+    return _(u'Custom (I {}; A 0x{:X})').format(port.IRQ, port.IOBase)

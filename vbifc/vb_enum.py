@@ -23,14 +23,14 @@ def AudioControllerType_text(id):
     if _ac_text_cache is None:
         vbconst = VBoxConstants()
         _ac_text_cache = {
-            vbconst.AudioControllerType_AC97: u'ICH AC97',
-            vbconst.AudioControllerType_SB16: u'SoundBlaster 16',
-            vbconst.AudioControllerType_HDA: u'Intel HD Audio'
+            vbconst.AudioControllerType_AC97: _(u'ICH AC97'),
+            vbconst.AudioControllerType_SB16: _(u'SoundBlaster 16'),
+            vbconst.AudioControllerType_HDA: _(u'Intel HD Audio')
         }
     if id in _ac_text_cache:
         return _ac_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _ad_text_cache = None
 def AudioDriverType_text(id):
@@ -38,19 +38,19 @@ def AudioDriverType_text(id):
     if _ad_text_cache is None:
         vbconst = VBoxConstants()
         _ad_text_cache = {
-            vbconst.AudioDriverType_Null: u'Dummy',
-            vbconst.AudioDriverType_WinMM: u'Windows Multimedia',
-            vbconst.AudioDriverType_OSS: u'OSS',
-            vbconst.AudioDriverType_ALSA: u'ALSA',
-            vbconst.AudioDriverType_DirectSound: u'DirectSound',
-            vbconst.AudioDriverType_CoreAudio: u'CoreAudio',
-            vbconst.AudioDriverType_Pulse: u'PulseAudio',
-            vbconst.AudioDriverType_SolAudio: u'Solaris Audio'
+            vbconst.AudioDriverType_Null: _(u'Dummy'),
+            vbconst.AudioDriverType_WinMM: _(u'Windows Multimedia'),
+            vbconst.AudioDriverType_OSS: _(u'OSS'),
+            vbconst.AudioDriverType_ALSA: _(u'ALSA'),
+            vbconst.AudioDriverType_DirectSound: _(u'DirectSound'),
+            vbconst.AudioDriverType_CoreAudio: _(u'CoreAudio'),
+            vbconst.AudioDriverType_Pulse: _(u'PulseAudio'),
+            vbconst.AudioDriverType_SolAudio: _(u'Solaris Audio')
         }
     if id in _ad_text_cache:
         return _ad_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _dt_text_cache = None
 def DeviceType_text(id):
@@ -59,18 +59,18 @@ def DeviceType_text(id):
         vbconst = VBoxConstants()
         _dt_text_cache = {
             vbconst.DeviceType_Null: u'',
-            vbconst.DeviceType_Floppy: u'Floppy',
-            vbconst.DeviceType_DVD: u'Optical',
-            vbconst.DeviceType_HardDisk: u'Hard Disk',
-            vbconst.DeviceType_Network: u'Network',
-            vbconst.DeviceType_USB: u'USB',
-            vbconst.DeviceType_SharedFolder: u'Shared Folder',
-            vbconst.DeviceType_Graphics3D: u'3D Graphics'
+            vbconst.DeviceType_Floppy: _(u'Floppy'),
+            vbconst.DeviceType_DVD: _(u'Optical'),
+            vbconst.DeviceType_HardDisk: _(u'Hard Disk'),
+            vbconst.DeviceType_Network: _(u'Network'),
+            vbconst.DeviceType_USB: _(u'USB'),
+            vbconst.DeviceType_SharedFolder: _(u'Shared Folder'),
+            vbconst.DeviceType_Graphics3D: _(u'3D Graphics')
         }
     if id in _dt_text_cache:
         return _dt_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _ms_text_cache = None
 def MachineState_text(id):
@@ -78,35 +78,35 @@ def MachineState_text(id):
     if _ms_text_cache is None:
         vbconst = VBoxConstants()
         _ms_text_cache = {
-            vbconst.MachineState_Null: u'<Invalid>',
-            vbconst.MachineState_PoweredOff: u'Powered Off',
-            vbconst.MachineState_Saved: u'Saved',
-            vbconst.MachineState_Teleported: u'Teleported',
-            vbconst.MachineState_Aborted: u'Aborted',
-            vbconst.MachineState_Running: u'Running',
-            vbconst.MachineState_Paused: u'Paused',
-            vbconst.MachineState_Stuck: u'Guru Meditation',
-            vbconst.MachineState_Teleporting: u'Teleporting',
-            vbconst.MachineState_LiveSnapshotting: u'Creating Snapshot (Online)',
-            vbconst.MachineState_Starting: u'Starting',
-            vbconst.MachineState_Stopping: u'Stopping',
-            vbconst.MachineState_Saving: u'Saving',
-            vbconst.MachineState_Restoring: u'Restoring',
-            vbconst.MachineState_TeleportingPausedVM: u'Teleporting (Paused)',
-            vbconst.MachineState_TeleportingIn: u'Teleporting In',
-            vbconst.MachineState_FaultTolerantSyncing: u'Syncing',
-            vbconst.MachineState_DeletingSnapshotOnline: u'Deleting Snapshot (Online)',
-            vbconst.MachineState_DeletingSnapshotPaused: u'Deleting Snapshot (Paused)',
-            vbconst.MachineState_OnlineSnapshotting: u'Creating Snapshot (Online)',
-            vbconst.MachineState_RestoringSnapshot: u'Restoring Snapshot',
-            vbconst.MachineState_DeletingSnapshot: u'Deleting Snapshot',
-            vbconst.MachineState_SettingUp: u'Configuring',
-            vbconst.MachineState_Snapshotting: u'Creating Snapshot'
+            vbconst.MachineState_Null: _(u'<Invalid>'),
+            vbconst.MachineState_PoweredOff: _(u'Powered Off'),
+            vbconst.MachineState_Saved: _(u'Saved'),
+            vbconst.MachineState_Teleported: _(u'Teleported'),
+            vbconst.MachineState_Aborted: _(u'Aborted'),
+            vbconst.MachineState_Running: _(u'Running'),
+            vbconst.MachineState_Paused: _(u'Paused'),
+            vbconst.MachineState_Stuck: _(u'Guru Meditation'),
+            vbconst.MachineState_Teleporting: _(u'Teleporting'),
+            vbconst.MachineState_LiveSnapshotting: _(u'Creating Snapshot (Online)'),
+            vbconst.MachineState_Starting: _(u'Starting'),
+            vbconst.MachineState_Stopping: _(u'Stopping'),
+            vbconst.MachineState_Saving: _(u'Saving'),
+            vbconst.MachineState_Restoring: _(u'Restoring'),
+            vbconst.MachineState_TeleportingPausedVM: _(u'Teleporting (Paused)'),
+            vbconst.MachineState_TeleportingIn: _(u'Teleporting In'),
+            vbconst.MachineState_FaultTolerantSyncing: _(u'Syncing'),
+            vbconst.MachineState_DeletingSnapshotOnline: _(u'Deleting Snapshot (Online)'),
+            vbconst.MachineState_DeletingSnapshotPaused: _(u'Deleting Snapshot (Paused)'),
+            vbconst.MachineState_OnlineSnapshotting: _(u'Creating Snapshot (Online)'),
+            vbconst.MachineState_RestoringSnapshot: _(u'Restoring Snapshot'),
+            vbconst.MachineState_DeletingSnapshot: _(u'Deleting Snapshot'),
+            vbconst.MachineState_SettingUp: _(u'Configuring'),
+            vbconst.MachineState_Snapshotting: _(u'Creating Snapshot')
         }
     if id in _ms_text_cache:
         return _ms_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _ms_icon_cache = None
 def MachineState_icon(id):
@@ -152,17 +152,17 @@ def MediumType_text(id):
     if _mt_text_cache is None:
         vbconst = VBoxConstants()
         _mt_text_cache = {
-            vbconst.MediumType_Normal: u'Normal',
-            vbconst.MediumType_Immutable: u'Immutable',
-            vbconst.MediumType_Writethrough: u'Writethrough',
-            vbconst.MediumType_Shareable: u'Shareable',
-            vbconst.MediumType_Readonly: u'Read-Only',
-            vbconst.MediumType_MultiAttach: u'Multi-Attach'
+            vbconst.MediumType_Normal: _(u'Normal'),
+            vbconst.MediumType_Immutable: _(u'Immutable'),
+            vbconst.MediumType_Writethrough: _(u'Writethrough'),
+            vbconst.MediumType_Shareable: _(u'Shareable'),
+            vbconst.MediumType_Readonly: _(u'Read-Only'),
+            vbconst.MediumType_MultiAttach: _(u'Multi-Attach')
         }
     if id in _mt_text_cache:
         return _mt_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _nadt_text_cache = None
 def NetworkAdapterType_text(id):
@@ -170,18 +170,18 @@ def NetworkAdapterType_text(id):
     if _nadt_text_cache is None:
         vbconst = VBoxConstants()
         _nadt_text_cache = {
-            vbconst.NetworkAdapterType_Null: u'<Invalid>',
-            vbconst.NetworkAdapterType_Am79C970A: u'AMD PCNet-PCI II',
-            vbconst.NetworkAdapterType_Am79C973: u'AMD PCNet-FAST III',
-            vbconst.NetworkAdapterType_I82540EM: u'Intel PRO/1000 MT Desktop',
-            vbconst.NetworkAdapterType_I82543GC: u'Intel PRO/1000 T Server',
-            vbconst.NetworkAdapterType_I82545EM: u'Intel PRO/1000 MT Server',
-            vbconst.NetworkAdapterType_Virtio: u'Paravirtualized'
+            vbconst.NetworkAdapterType_Null: _(u'<Invalid>'),
+            vbconst.NetworkAdapterType_Am79C970A: _(u'AMD PCNet-PCI II'),
+            vbconst.NetworkAdapterType_Am79C973: _(u'AMD PCNet-FAST III'),
+            vbconst.NetworkAdapterType_I82540EM: _(u'Intel PRO/1000 MT Desktop'),
+            vbconst.NetworkAdapterType_I82543GC: _(u'Intel PRO/1000 T Server'),
+            vbconst.NetworkAdapterType_I82545EM: _(u'Intel PRO/1000 MT Server'),
+            vbconst.NetworkAdapterType_Virtio: _(u'Paravirtualized')
         }
     if id in _nadt_text_cache:
         return _nadt_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _natt_text_cache = None
 def NetworkAttachmentType_text(id):
@@ -190,17 +190,17 @@ def NetworkAttachmentType_text(id):
         vbconst = VBoxConstants()
         _natt_text_cache = {
             vbconst.NetworkAttachmentType_Null: u'',
-            vbconst.NetworkAttachmentType_NAT: u'NAT',
-            vbconst.NetworkAttachmentType_Bridged: u'Bridged',
-            vbconst.NetworkAttachmentType_Internal: u'Internal',
-            vbconst.NetworkAttachmentType_HostOnly: u'Host-Only',
-            vbconst.NetworkAttachmentType_Generic: u'Generic',
-            vbconst.NetworkAttachmentType_NATNetwork: u'NAT Network'
+            vbconst.NetworkAttachmentType_NAT: _(u'NAT'),
+            vbconst.NetworkAttachmentType_Bridged: _(u'Bridged'),
+            vbconst.NetworkAttachmentType_Internal: _(u'Internal'),
+            vbconst.NetworkAttachmentType_HostOnly: _(u'Host-Only'),
+            vbconst.NetworkAttachmentType_Generic: _(u'Generic'),
+            vbconst.NetworkAttachmentType_NATNetwork: _(u'NAT Network')
         }
     if id in _natt_text_cache:
         return _natt_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _pvp_text_cache = None
 def ParavirtProvider_text(id):
@@ -209,16 +209,16 @@ def ParavirtProvider_text(id):
         vbconst = VBoxConstants()
         _pvp_text_cache = {
             vbconst.ParavirtProvider_None: u'',
-            vbconst.ParavirtProvider_Default: u'Default',
-            vbconst.ParavirtProvider_Legacy: u'Legacy',
-            vbconst.ParavirtProvider_Minimal: u'Minimal',
-            vbconst.ParavirtProvider_HyperV: u'Hyper-V',
-            vbconst.ParavirtProvider_KVM: u'KVM'
+            vbconst.ParavirtProvider_Default: _(u'Default'),
+            vbconst.ParavirtProvider_Legacy: _(u'Legacy'),
+            vbconst.ParavirtProvider_Minimal: _(u'Minimal'),
+            vbconst.ParavirtProvider_HyperV: _(u'Hyper-V'),
+            vbconst.ParavirtProvider_KVM: _(u'KVM')
         }
     if id in _pvp_text_cache:
         return _pvp_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _pm_text_cache = None
 def PortMode_text(id):
@@ -226,16 +226,16 @@ def PortMode_text(id):
     if _pm_text_cache is None:
         vbconst = VBoxConstants()
         _pm_text_cache = {
-            vbconst.PortMode_Disconnected: u'Disconnected',
-            vbconst.PortMode_HostPipe: u'Host Pipe',
-            vbconst.PortMode_HostDevice: u'Host Device',
-            vbconst.PortMode_RawFile: u'Raw File',
-            vbconst.PortMode_TCP: u'TCP Socket'
+            vbconst.PortMode_Disconnected: _(u'Disconnected'),
+            vbconst.PortMode_HostPipe: _(u'Host Pipe'),
+            vbconst.PortMode_HostDevice: _(u'Host Device'),
+            vbconst.PortMode_RawFile: _(u'Raw File'),
+            vbconst.PortMode_TCP: _(u'TCP Socket')
         }
     if id in _pm_text_cache:
         return _pm_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
 
 _sb_text_cache = None
 def StorageBus_text(id):
@@ -243,16 +243,16 @@ def StorageBus_text(id):
     if _sb_text_cache is None:
         vbconst = VBoxConstants()
         _sb_text_cache = {
-            vbconst.StorageBus_Null: u'<invalid>',
-            vbconst.StorageBus_IDE: u'IDE',
-            vbconst.StorageBus_SATA: u'SATA',
-            vbconst.StorageBus_SCSI: u'SCSI',
-            vbconst.StorageBus_Floppy: u'Floppy',
-            vbconst.StorageBus_SAS: u'SAS',
-            vbconst.StorageBus_USB: u'USB',
-            vbconst.StorageBus_PCIe: u'PCIe'
+            vbconst.StorageBus_Null: _(u'<invalid>'),
+            vbconst.StorageBus_IDE: _(u'IDE'),
+            vbconst.StorageBus_SATA: _(u'SATA'),
+            vbconst.StorageBus_SCSI: _(u'SCSI'),
+            vbconst.StorageBus_Floppy: _(u'Floppy'),
+            vbconst.StorageBus_SAS: _(u'SAS'),
+            vbconst.StorageBus_USB: _(u'USB'),
+            vbconst.StorageBus_PCIe: _(u'PCIe')
         }
     if id in _sb_text_cache:
         return _sb_text_cache[id]
     else:
-        return u'(Unknown)'
+        return _(u'(Unknown)')
