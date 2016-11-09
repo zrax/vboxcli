@@ -70,3 +70,8 @@ class VBoxWrapper(object):
 
     def getSession(self):
         return VBoxWrapper._cache.mgr.getSessionObject(VBoxWrapper._cache.vbox)
+
+
+def VBoxConstants():
+    vbox = VBoxWrapper()
+    return vbox.constants

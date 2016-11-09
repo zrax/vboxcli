@@ -15,7 +15,7 @@
 # along with vboxcli; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from . import VBoxWrapper
+from . import VBoxWrapper, VBoxConstants
 import vb_enum
 
 def format_size(size):
@@ -51,13 +51,14 @@ def get_boot_order(machine):
 
 def get_accel_summary(machine):
     vbox = VBoxWrapper()
+    vbconst = VBoxConstants()
     desc = []
-    if vbox.host.getProcessorFeature(vbox.constants.ProcessorFeature_HWVirtEx):
-        if machine.getHWVirtExProperty(vbox.constants.HWVirtExPropertyType_Enabled):
+    if vbox.host.getProcessorFeature(vbconst.ProcessorFeature_HWVirtEx):
+        if machine.getHWVirtExProperty(vbconst.HWVirtExPropertyType_Enabled):
             desc.append(u'VT-x/AMD-V')
-            if machine.getHWVirtExProperty(vbox.constants.HWVirtExPropertyType_NestedPaging):
+            if machine.getHWVirtExProperty(vbconst.HWVirtExPropertyType_NestedPaging):
                 desc.append(u'Nested Paging')
-    if machine.getCPUProperty(vbox.constants.CPUPropertyType_PAE):
+    if machine.getCPUProperty(vbconst.CPUPropertyType_PAE):
         desc.append(u'PAE/NX')
     pvirt = vb_enum.ParavirtProvider_text(machine.getEffectiveParavirtProvider())
     if pvirt != u'':
@@ -65,9 +66,9 @@ def get_accel_summary(machine):
     return u', '.join(desc)
 
 def get_storage_slot_name(bus, port, device):
-    vbox = VBoxWrapper()
+    vbconst = VBoxConstants()
     text = vb_enum.StorageBus_text(bus)
-    if bus == vbox.constants.StorageBus_IDE:
+    if bus == vbconst.StorageBus_IDE:
         if port == 0:
             text += u' Primary'
         elif port == 1:
@@ -80,15 +81,15 @@ def get_storage_slot_name(bus, port, device):
             text += u' Slave'
         else:
             text += u' <invalid>'
-    elif bus == vbox.constants.StorageBus_Floppy:
+    elif bus == vbconst.StorageBus_Floppy:
         text += u' Device {}'.format(device)
     else:
         text += u' Port {}'.format(port)
     return text
 
 def get_attachment_desc(attachment):
-    vbox = VBoxWrapper()
-    if attachment.type == vbox.constants.DeviceType_DVD:
+    vbconst = VBoxConstants()
+    if attachment.type == vbconst.DeviceType_DVD:
         text = u'[Optical Drive] '
     else:
         text = u''
@@ -110,7 +111,7 @@ def get_attachment_desc(attachment):
     text += medium.name
     details = []
     devType = medium.deviceType
-    if devType == vbox.constants.DeviceType_HardDisk:
+    if devType == vbconst.DeviceType_HardDisk:
         details.append(vb_enum.MediumType_text(medium.type))
         try:
             medium.getEncryptionSettings()
@@ -121,11 +122,11 @@ def get_attachment_desc(attachment):
             details.append(u'Encrypted')
 
     mstate = medium.state
-    if mstate == vbox.constants.MediumState_NotCreated:
+    if mstate == vbconst.MediumState_NotCreated:
         details.append(u'Checking...')
-    elif mstate == vbox.constants.MediumState_Inaccessible:
+    elif mstate == vbconst.MediumState_Inaccessible:
         details.append(u'Inaccessible')
-    elif devType == vbox.constants.DeviceType_HardDisk:
+    elif devType == vbconst.DeviceType_HardDisk:
         details.append(format_size(medium.logicalSize))
     else:
         details.append(format_size(medium.size))
@@ -135,22 +136,22 @@ def get_network_adapter_desc(adapter):
     if not adapter.enabled:
         return u''
 
-    vbox = VBoxWrapper()
+    vbconst = VBoxConstants()
     text = vb_enum.NetworkAdapterType_text(adapter.adapterType)
     at_type = adapter.attachmentType
     details = [vb_enum.NetworkAttachmentType_text(at_type)]
-    if at_type == vbox.constants.NetworkAttachmentType_Bridged:
+    if at_type == vbconst.NetworkAttachmentType_Bridged:
         details.append(adapter.bridgedInterface)
-    elif at_type == vbox.constants.NetworkAttachmentType_Internal:
+    elif at_type == vbconst.NetworkAttachmentType_Internal:
         details.append(adapter.internalNetwork)
-    elif at_type == vbox.constants.NetworkAttachmentType_Internal:
+    elif at_type == vbconst.NetworkAttachmentType_Internal:
         details.append(adapter.hostOnlyInterface)
-    elif at_type == vbox.constants.NetworkAttachmentType_Generic:
+    elif at_type == vbconst.NetworkAttachmentType_Generic:
         details.append(adapter.genericDriver)
         names, props = adapter.getProperties(None)
         for i in range(len(names)):
             details.append(u'{}={}'.format(names[i], props[i]))
-    elif at_type == vbox.constants.NetworkAttachmentType_NATNetwork:
+    elif at_type == vbconst.NetworkAttachmentType_NATNetwork:
         details.append(adapter.NATNetwork)
 
     return u'{} ({})'.format(text, u', '.join(details))
