@@ -47,7 +47,7 @@ class MessagePopup(urwid.LineBox):
 
     def __init__(self, message, title=None):
         ok_button = PopupButton(_(u'OK'))
-        urwid.connect_signal(self.ok_button, 'click', self._close)
+        urwid.connect_signal(ok_button, 'click', self._close)
         content = urwid.Pile([
             urwid.Text(message),
             urwid.Divider(),
