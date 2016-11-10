@@ -22,7 +22,31 @@ from machine_list import MachineList, MachineNode
 from machine_info import MachineInfo
 from menus import MenuButton, PopupMenu, MenuBar
 from popups import MessagePopup, ConfirmPopup
-from . import VBCUIEventLoop, popup_palette_map
+from . import VBCUIEventLoop, popup_palette_map, VBOXCLI_VERSION
+
+
+def get_help_text():
+    # Needs to be a function so gettext is initialized by the time we need
+    # the text content.  Please keep this content limited to 72 columns
+    return _(u'''\
+VirtualBox Command Line Interface (vboxcli) v{version}
+Created by Michael Hansen
+
+Keyboard Commands:
+    q:  Quit vboxcli                  ?:  Show this help screen
+    r:  Refresh current VM            R:  Refresh all VMs and VM tree
+    s:  Start/Stop Selected VM        e:  Edit settings for selected VM
+    P:  Pause/Resume Selected VM      ^t: Reset selected VM
+    ^l: Show logs for selected VM     ^d: Discard saved state
+
+    M:  Show Virtual Media Manager    ^p: Show global preferences
+    ^i: Import appliance as VM        ^e: Export VM as appliance
+    n:  Create new VM                 ^r: Remove selected VM
+    a:  Add existing VM to list       ^o: Clone selected VM
+
+    O:  Attach optical disk           P:  Remove optical disk
+    U:  Manage USB devices            G:  Insert Guest Additions CD''').format(version=VBOXCLI_VERSION)
+
 
 class StatusBar(urwid.ProgressBar):
     text_align = urwid.LEFT
@@ -108,6 +132,8 @@ class TopUI(urwid.WidgetPlaceholder):
 
         if key in ('q', 'Q'):
             self.quit()
+        elif key == '?':
+            self.show_message(get_help_text(), width=74)
         elif key == 'P':
             self.pause_resume()
         elif key == 'R':
@@ -297,8 +323,8 @@ class TopUI(urwid.WidgetPlaceholder):
         elif machine.state == vbconst.MachineState_Paused:
             self.console_cmd(machine, 'resume')
 
-    def show_message(self, message, title=None):
+    def show_message(self, message, title=u'', width=(urwid.RELATIVE, 80)):
         popup = MessagePopup(message, title)
         urwid.connect_signal(popup, 'close', self.close_popup)
-        self.show_popup(popup, align=urwid.CENTER, width=(urwid.RELATIVE, 80),
+        self.show_popup(popup, align=urwid.CENTER, width=width,
                         valign=urwid.MIDDLE, height=urwid.PACK)
