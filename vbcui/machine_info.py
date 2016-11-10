@@ -140,10 +140,10 @@ class MachineInfo(urwid.LineBox):
                 continue
             port_text = u'{}: {}'.format(vb_text.serial_port_name(port),
                                          vb_enum.PortMode_text(port.hostMode))
-            if port.hostMode in (vbox.constants.PortMode_HostPipe,
+            if port.hostMode in {vbox.constants.PortMode_HostPipe,
                                  vbox.constants.PortMode_HostDevice,
                                  vbox.constants.PortMode_RawFile,
-                                 vbox.constants.PortMode_TCP):
+                                 vbox.constants.PortMode_TCP}:
                 port_text += u' ({})'.format(port.path)
             serial_group.append((_(u'Port {}').format(port.slot + 1), port_text))
         self.add_info_group(_(u'Serial Ports'), serial_group)

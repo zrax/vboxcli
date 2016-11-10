@@ -46,14 +46,14 @@ class MessagePopup(urwid.LineBox):
     signals = ['close']
 
     def __init__(self, message, title=None):
-        self.ok_button = PopupButton(_(u'OK'))
+        ok_button = PopupButton(_(u'OK'))
         urwid.connect_signal(self.ok_button, 'click', self._close)
         content = urwid.Pile([
             urwid.Text(message),
             urwid.Divider(),
             urwid.Columns([
                 self.spacer,
-                (urwid.FIXED, 6, self.ok_button),
+                (urwid.FIXED, ok_button.min_width, ok_button),
                 self.spacer
             ], dividechars=0)
         ])
@@ -105,3 +105,24 @@ class ConfirmPopup(urwid.LineBox):
 
     def _reject(self, sender=None):
         urwid.emit_signal(self, 'rejected')
+
+
+class HelpPopup(urwid.LineBox):
+    signals = ['close']
+
+    def __init__(self, text, title=None):
+        close_button = PopupButton(_(u'Close'))
+        urwid.connect_signal(close_button, 'click', self._close)
+        lines = text.split(u'\n')
+        content = urwid.SimpleFocusListWalker([urwid.Text(ln) for ln in lines])
+        super(HelpPopup, self).__init__(urwid.ListBox(content), title=title)
+
+    def keypress(self, size, key):
+        key = super(HelpPopup, self).keypress(size, key)
+        if key in {'esc', 'enter'}:
+            self._close()
+        else:
+            return key
+
+    def _close(self, sender=None):
+        urwid.emit_signal(self, 'close')

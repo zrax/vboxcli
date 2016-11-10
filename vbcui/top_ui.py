@@ -21,7 +21,7 @@ from vbifc import VBoxWrapper, VBoxConstants
 from machine_list import MachineList, MachineNode
 from machine_info import MachineInfo
 from menus import MenuButton, PopupMenu, MenuBar
-from popups import MessagePopup, ConfirmPopup
+from popups import MessagePopup, ConfirmPopup, HelpPopup
 from . import VBCUIEventLoop, popup_palette_map, VBOXCLI_VERSION
 
 
@@ -130,10 +130,10 @@ class TopUI(urwid.WidgetPlaceholder):
             # UI as the top-level widget
             return key
 
-        if key in ('q', 'Q'):
+        if key in {'q', 'Q'}:
             self.quit()
         elif key == '?':
-            self.show_message(get_help_text(), width=74)
+            self.show_help()
         elif key == 'P':
             self.pause_resume()
         elif key == 'R':
@@ -323,8 +323,15 @@ class TopUI(urwid.WidgetPlaceholder):
         elif machine.state == vbconst.MachineState_Paused:
             self.console_cmd(machine, 'resume')
 
-    def show_message(self, message, title=u'', width=(urwid.RELATIVE, 80)):
+    def show_message(self, message, title=u''):
         popup = MessagePopup(message, title)
         urwid.connect_signal(popup, 'close', self.close_popup)
-        self.show_popup(popup, align=urwid.CENTER, width=width,
+        self.show_popup(popup, align=urwid.CENTER, width=(urwid.RELATIVE, 80),
                         valign=urwid.MIDDLE, height=urwid.PACK)
+
+    def show_help(self, sender=None):
+        popup = HelpPopup(get_help_text(), title=_(u'Help/About'))
+        urwid.connect_signal(popup, 'close', self.close_popup)
+        self.show_popup(popup, align=urwid.CENTER, width=76,
+                        valign=urwid.MIDDLE, height=(urwid.RELATIVE, 50),
+                        min_height=15)

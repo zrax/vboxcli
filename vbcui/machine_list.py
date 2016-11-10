@@ -51,7 +51,7 @@ class MachineNodeWidget(urwid.TreeWidget):
         # Make the Left and Right keys behave somewhat consistently with
         # each other, which is apparently not the default
         key = super(MachineNodeWidget, self).keypress(size, key)
-        if key in ('left', 'h'):
+        if key in {'left', 'h'}:
             if not self.is_leaf:
                 self.expanded = False
                 self.update_expanded_icon()
