@@ -40,11 +40,11 @@ Keyboard Commands:
     ^l: Show logs for selected VM     ^d: Discard saved state
 
     M:  Show Virtual Media Manager    ^p: Show global preferences
-    ^i: Import appliance as VM        ^e: Export VM as appliance
+    ^a: Import appliance as VM        ^e: Export VM as appliance
     n:  Create new VM                 ^r: Remove selected VM
     a:  Add existing VM to list       ^o: Clone selected VM
 
-    O:  Attach optical disk           P:  Remove optical disk
+    O:  Attach optical disk           X:  Remove optical disk
     U:  Manage USB devices            G:  Insert Guest Additions CD''').format(version=VBOXCLI_VERSION)
 
 
