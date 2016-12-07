@@ -108,14 +108,26 @@ class ConfirmPopup(urwid.LineBox):
 
 
 class HelpPopup(urwid.LineBox):
+    spacer = (urwid.WEIGHT, 1, urwid.Text(u''))
+
     signals = ['close']
 
     def __init__(self, text, title=None):
         close_button = PopupButton(_(u'Close'))
         urwid.connect_signal(close_button, 'click', self._close)
         lines = text.split(u'\n')
-        content = urwid.SimpleFocusListWalker([urwid.Text(ln) for ln in lines])
-        super(HelpPopup, self).__init__(urwid.ListBox(content), title=title)
+        self.content = urwid.SimpleFocusListWalker([urwid.Text(ln) for ln in lines])
+        self.content.append(urwid.Divider())
+        self.content.append(urwid.Columns([
+            self.spacer,
+            (urwid.FIXED, close_button.min_width, close_button),
+            self.spacer
+        ]))
+        super(HelpPopup, self).__init__(urwid.ListBox(self.content), title=title)
+
+    @property
+    def suggested_height(self):
+        return len(self.content) + 2
 
     def keypress(self, size, key):
         key = super(HelpPopup, self).keypress(size, key)

@@ -333,5 +333,4 @@ class TopUI(urwid.WidgetPlaceholder):
         popup = HelpPopup(get_help_text(), title=_(u'Help/About'))
         urwid.connect_signal(popup, 'close', self.close_popup)
         self.show_popup(popup, align=urwid.CENTER, width=76,
-                        valign=urwid.MIDDLE, height=(urwid.RELATIVE, 50),
-                        min_height=15)
+                        valign=urwid.MIDDLE, height=popup.suggested_height)
