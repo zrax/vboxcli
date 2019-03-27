@@ -18,17 +18,17 @@
 import urwid
 
 from vbifc import VBoxWrapper, VBoxConstants
-from machine_list import MachineList, MachineNode
-from machine_info import MachineInfo
-from menus import MenuButton, PopupMenu, MenuBar
-from popups import MessagePopup, ConfirmPopup, HelpPopup
+from .machine_list import MachineList, MachineNode
+from .machine_info import MachineInfo
+from .menus import MenuButton, PopupMenu, MenuBar
+from .popups import MessagePopup, ConfirmPopup, HelpPopup
 from . import VBCUIEventLoop, popup_palette_map, VBOXCLI_VERSION
 
 
 def get_help_text():
     # Needs to be a function so gettext is initialized by the time we need
     # the text content.  Please keep this content limited to 72 columns
-    return _(u'''\
+    return _('''\
 VirtualBox Command Line Interface (vboxcli) v{version}
 Created by Michael Hansen
 
@@ -52,7 +52,7 @@ class StatusBar(urwid.ProgressBar):
     text_align = urwid.LEFT
 
     def __init__(self):
-        self.status_text = u''
+        self.status_text = ''
         super(StatusBar, self).__init__('statusbar', 'progress', 0, 100)
 
     def set_text(self, text):
@@ -63,7 +63,7 @@ class StatusBar(urwid.ProgressBar):
         if self.current == 0:
             return self.status_text
         else:
-            return u'{} ({} %)'.format(self.status_text, self.current)
+            return '{} ({} %)'.format(self.status_text, self.current)
 
 
 class TopUI(urwid.WidgetPlaceholder):
@@ -75,47 +75,47 @@ class TopUI(urwid.WidgetPlaceholder):
             (urwid.WEIGHT, 2, self.mach_info)
         ])
         top_menu = [
-            (_(u'&File'), [
-                MenuButton(_(u'&Preferences')),
-                urwid.Divider(u'\u2500'),
-                MenuButton(_(u'&Import Appliance')),
-                MenuButton(_(u'&Export Appliance')),
-                urwid.Divider(u'\u2500'),
-                MenuButton(_(u'&Virtual Media Manager')),
-                urwid.Divider(u'\u2500'),
-                MenuButton(_(u'E&xit'), u'q', action=self.quit)
+            (_('&File'), [
+                MenuButton(_('&Preferences')),
+                urwid.Divider('\u2500'),
+                MenuButton(_('&Import Appliance')),
+                MenuButton(_('&Export Appliance')),
+                urwid.Divider('\u2500'),
+                MenuButton(_('&Virtual Media Manager')),
+                urwid.Divider('\u2500'),
+                MenuButton(_('E&xit'), 'q', action=self.quit)
             ]),
-            (_(u'&Machine'), [
-                MenuButton(_(u'&New')),
-                MenuButton(_(u'&Add')),
-                MenuButton(_(u'&Settings')),
-                MenuButton(_(u'Cl&one')),
-                MenuButton(_(u'Remo&ve')),
-                MenuButton(_(u'Gro&up')),
-                urwid.Divider(u'\u2500'),
-                MenuButton(_(u'S&tart...'), u's', action=self.show_start),
-                MenuButton(_(u'&Pause')),
-                MenuButton(_(u'&Reset')),
-                MenuButton(_(u'Sto&p...')),
-                urwid.Divider(u'\u2500'),
-                MenuButton(_(u'D&iscard Saved State')),
-                MenuButton(_(u'Show &Log')),
-                MenuButton(_(u'Re&fresh'))
+            (_('&Machine'), [
+                MenuButton(_('&New')),
+                MenuButton(_('&Add')),
+                MenuButton(_('&Settings')),
+                MenuButton(_('Cl&one')),
+                MenuButton(_('Remo&ve')),
+                MenuButton(_('Gro&up')),
+                urwid.Divider('\u2500'),
+                MenuButton(_('S&tart...'), 's', action=self.show_start),
+                MenuButton(_('&Pause')),
+                MenuButton(_('&Reset')),
+                MenuButton(_('Sto&p...')),
+                urwid.Divider('\u2500'),
+                MenuButton(_('D&iscard Saved State')),
+                MenuButton(_('Show &Log')),
+                MenuButton(_('Re&fresh'))
             ]),
-            (_(u'&Devices'), [
-                MenuButton(_(u'&Attach Optical Disk Image')),
-                MenuButton(_(u'&Remove Disk from Virtual Drive')),
-                urwid.Divider(u'\u2500'),
-                MenuButton(_(u'Manage &USB Devices')),
-                urwid.Divider(u'\u2500'),
-                MenuButton(_(u'Insert &Guest Additions CD Image'))
+            (_('&Devices'), [
+                MenuButton(_('&Attach Optical Disk Image')),
+                MenuButton(_('&Remove Disk from Virtual Drive')),
+                urwid.Divider('\u2500'),
+                MenuButton(_('Manage &USB Devices')),
+                urwid.Divider('\u2500'),
+                MenuButton(_('Insert &Guest Additions CD Image'))
             ]),
-            (_(u'&Help'), [
-                MenuButton(_(u'&About'))
+            (_('&Help'), [
+                MenuButton(_('&About'))
             ])
         ]
         #self.menu_bar = MenuBar(top_menu)
-        self.hint_bar = urwid.Text(_(u'?: Help  q: Quit  s: Start/Stop  e: Edit VM Settings'))
+        self.hint_bar = urwid.Text(_('?: Help  q: Quit  s: Start/Stop  e: Edit VM Settings'))
         self.status_bar = StatusBar()
         self.top_frame = urwid.Frame(self.columns, urwid.AttrWrap(self.hint_bar, 'statusbar'), self.status_bar)
         super(TopUI, self).__init__(self.top_frame)
@@ -183,12 +183,12 @@ class TopUI(urwid.WidgetPlaceholder):
                 return True
             err = progress.errorInfo
             self.show_message(
-                _(u"Error in module '{}': {}").format(err.component, err.text),
-                title=_(u'Error starting VM'))
+                _("Error in module '{}': {}").format(err.component, err.text),
+                title=_('Error starting VM'))
         except KeyboardInterrupt:
             if progress.cancelable:
                 progress.cancel()
-            self.show_message(_(u'Operation aborted'), title=_(u'Error starting VM'))
+            self.show_message(_('Operation aborted'), title=_('Error starting VM'))
         return False
 
     def start_machine(self, machine, vmtype):
@@ -196,15 +196,15 @@ class TopUI(urwid.WidgetPlaceholder):
         vbconst = VBoxConstants()
         session = vbox.getSession()
         try:
-            progress = machine.launchVMProcess(session, vmtype, u'')
-            self.status_bar.set_text(_(u'Starting {}').format(machine.name))
+            progress = machine.launchVMProcess(session, vmtype, '')
+            self.status_bar.set_text(_('Starting {}').format(machine.name))
             self.progress_bar(progress)
         except Exception as ex:
-            self.show_message(vbox.exceptMessage(ex), title=_(u'VirtualBox Exception'))
+            self.show_message(vbox.exceptMessage(ex), title=_('VirtualBox Exception'))
         if session.state == vbconst.SessionState_Locked:
             session.unlockMachine()
         self.update_selected()
-        self.status_bar.set_text(u'')
+        self.status_bar.set_text('')
 
     def _on_start_machine(self, sender, params):
         self.close_popup(sender)
@@ -218,7 +218,7 @@ class TopUI(urwid.WidgetPlaceholder):
         session = vbox.getSession()
         machine.lockMachine(session, vbconst.LockType_Shared)
         if session.state != vbconst.SessionState_Locked:
-            self.show_message(_(u'Could not lock session'), title=_(u'Error'))
+            self.show_message(_('Could not lock session'), title=_('Error'))
             return None
         else:
             return session
@@ -227,13 +227,13 @@ class TopUI(urwid.WidgetPlaceholder):
         session = self.get_running_session(machine)
         try:
             progress = session.machine.saveState()
-            self.status_bar.set_text(_(u'Saving {}').format(machine.name))
+            self.status_bar.set_text(_('Saving {}').format(machine.name))
             self.progress_bar(progress)
         except Exception as ex:
             vbox = VBoxWrapper()
-            self.show_message(vbox.exceptMessage(ex), title=_(u'VirtualBox Exception'))
+            self.show_message(vbox.exceptMessage(ex), title=_('VirtualBox Exception'))
         self.update_selected()
-        self.status_bar.set_text(u'')
+        self.status_bar.set_text('')
 
     def _on_save_state(self, sender, machine):
         self.close_popup(sender)
@@ -253,11 +253,11 @@ class TopUI(urwid.WidgetPlaceholder):
             elif command == 'power_down':
                 console.powerDown()
             else:
-                self.show_message(_(u'Unsupported command: {}').format(command),
-                                  title=_(u'Internal Error'))
+                self.show_message(_('Unsupported command: {}').format(command),
+                                  title=_('Internal Error'))
         except Exception as ex:
             vbox = VBoxWrapper()
-            self.show_message(vbox.exceptMessage(ex), title=_(u'VirtualBox Exception'))
+            self.show_message(vbox.exceptMessage(ex), title=_('VirtualBox Exception'))
 
         if session.state == vbconst.SessionState_Locked:
             session.unlockMachine()
@@ -281,25 +281,25 @@ class TopUI(urwid.WidgetPlaceholder):
                              vbconst.MachineState_Aborted,
                              vbconst.MachineState_Saved}:
             menu_items = [
-                MenuButton(_(u'Start &GUI'), action=self._on_start_machine,
-                           user_data=(machine, u'gui')),
-                MenuButton(_(u'Start S&DL GUI'), action=self._on_start_machine,
-                           user_data=(machine, u'sdl')),
-                MenuButton(_(u'Start &Headless'), action=self._on_start_machine,
-                           user_data=(machine, u'headless'))
+                MenuButton(_('Start &GUI'), action=self._on_start_machine,
+                           user_data=(machine, 'gui')),
+                MenuButton(_('Start S&DL GUI'), action=self._on_start_machine,
+                           user_data=(machine, 'sdl')),
+                MenuButton(_('Start &Headless'), action=self._on_start_machine,
+                           user_data=(machine, 'headless'))
             ]
-            title = _(u'Start Machine')
+            title = _('Start Machine')
         elif machine.state in {vbconst.MachineState_Running,
                                vbconst.MachineState_Paused}:
             menu_items = [
-                MenuButton(_(u'Sa&ve State'), action=self._on_save_state,
+                MenuButton(_('Sa&ve State'), action=self._on_save_state,
                            user_data=machine),
-                MenuButton(_(u'ACPI Sh&utdown'), action=self._on_console_cmd,
+                MenuButton(_('ACPI Sh&utdown'), action=self._on_console_cmd,
                            user_data=(machine, 'acpi_button')),
-                MenuButton(_(u'Po&wer Off'), action=self._on_console_cmd,
+                MenuButton(_('Po&wer Off'), action=self._on_console_cmd,
                            user_data=(machine, 'power_down'))
             ]
-            title = _(u'Stop Machine')
+            title = _('Stop Machine')
         else:
             return
 
@@ -323,14 +323,14 @@ class TopUI(urwid.WidgetPlaceholder):
         elif machine.state == vbconst.MachineState_Paused:
             self.console_cmd(machine, 'resume')
 
-    def show_message(self, message, title=u''):
+    def show_message(self, message, title=''):
         popup = MessagePopup(message, title)
         urwid.connect_signal(popup, 'close', self.close_popup)
         self.show_popup(popup, align=urwid.CENTER, width=(urwid.RELATIVE, 80),
                         valign=urwid.MIDDLE, height=urwid.PACK)
 
     def show_help(self, sender=None):
-        popup = HelpPopup(get_help_text(), title=_(u'Help/About'))
+        popup = HelpPopup(get_help_text(), title=_('Help/About'))
         urwid.connect_signal(popup, 'close', self.close_popup)
         self.show_popup(popup, align=urwid.CENTER, width=76,
                         valign=urwid.MIDDLE, height=popup.suggested_height)

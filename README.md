@@ -2,8 +2,7 @@
 
 ## Requirements
 
-* [Python 2.7](http://www.python.org) (the VirtualBox SDK doesn't support
-  Python 3 yet)
+* [Python 3](http://www.python.org)
 * The [VirtualBox SDK](https://www.virtualbox.org/wiki/Downloads) Python
   bindings.  Note that this usually comes with VirtualBox itself, but may be
   provided as a separate package on some Linux distributions.

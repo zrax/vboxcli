@@ -75,7 +75,7 @@ class VBoxWrapper(object):
         if VBoxWrapper._cache.mgr.errIsOurXcptKind(ex):
             return VBoxWrapper._cache.mgr.xcptGetMessage(ex)
         else:
-            return unicode(ex)
+            return str(ex)
 
 
 def VBoxConstants():

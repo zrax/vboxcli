@@ -20,21 +20,21 @@ import urwid
 from . import menu_palette_map
 
 class MenuButton(urwid.Button):
-    spacer = (urwid.FIXED, 1, urwid.Text(u' '))
+    spacer = (urwid.FIXED, 1, urwid.Text(' '))
 
     def __init__(self, caption, global_shortcut=None, action=None, user_data=None):
-        super(MenuButton, self).__init__(u'')
+        super(MenuButton, self).__init__('')
         self.min_width = len(caption) + 2
         self.shortcut = None
         self.global_shortcut = global_shortcut
         self.user_data = user_data
 
         cursor = 0
-        if u'&' in caption:
-            parts = caption.partition(u'&')
+        if '&' in caption:
+            parts = caption.partition('&')
             self.shortcut = parts[2][0]
             caption = []
-            if parts[0] != u'':
+            if parts[0] != '':
                 caption.append(parts[0])
             caption.append(('shortcut', self.shortcut))
             if len(parts[2]) > 1:
@@ -57,7 +57,7 @@ class MenuButton(urwid.Button):
 class PopupMenu(urwid.LineBox):
     signals = ['close']
 
-    def __init__(self, items, title=u''):
+    def __init__(self, items, title=''):
         self.items = urwid.SimpleFocusListWalker(items)
         self.menu = urwid.ListBox(self.items)
         super(PopupMenu, self).__init__(self.menu, title=title)
