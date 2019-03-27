@@ -17,7 +17,7 @@
 
 import urwid
 
-VBOXCLI_VERSION = u'1.0'
+VBOXCLI_VERSION = '1.0'
 
 palette = [
     # Name,         foreground,         background,     mono

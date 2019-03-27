@@ -22,16 +22,16 @@ class PopupButton(urwid.Button):
     button_right = urwid.Text("]")
 
     def __init__(self, caption, shortcut=None):
-        super(PopupButton, self).__init__(u'')
+        super(PopupButton, self).__init__('')
         self.min_width = len(caption) + 4
         cursor = 0
         if shortcut is not None:
             parts = caption.partition(shortcut)
             caption = []
-            if parts[0] != u'':
+            if parts[0] != '':
                 caption.append(parts[0])
             caption.append(('shortcut', parts[1]))
-            if parts[2] != u'':
+            if parts[2] != '':
                 caption.append(parts[2])
             cursor = len(parts[0])
         content = [(urwid.FIXED, 1, self.button_left),
@@ -41,12 +41,12 @@ class PopupButton(urwid.Button):
 
 
 class MessagePopup(urwid.LineBox):
-    spacer = (urwid.WEIGHT, 1, urwid.Text(u''))
+    spacer = (urwid.WEIGHT, 1, urwid.Text(''))
 
     signals = ['close']
 
     def __init__(self, message, title=None):
-        ok_button = PopupButton(_(u'OK'))
+        ok_button = PopupButton(_('OK'))
         urwid.connect_signal(ok_button, 'click', self._close)
         content = urwid.Pile([
             urwid.Text(message),
@@ -71,14 +71,14 @@ class MessagePopup(urwid.LineBox):
 
 
 class ConfirmPopup(urwid.LineBox):
-    spacer = (urwid.WEIGHT, 1, urwid.Text(u''))
+    spacer = (urwid.WEIGHT, 1, urwid.Text(''))
 
     signals = ['accepted', 'rejected']
 
     def __init__(self, message, title=None):
-        ok_button = PopupButton(_(u'OK'))
+        ok_button = PopupButton(_('OK'))
         urwid.connect_signal(ok_button, 'click', self._accept)
-        cancel_button = PopupButton(_(u'Cancel'))
+        cancel_button = PopupButton(_('Cancel'))
         urwid.connect_signal(cancel_button, 'click', self._reject)
         content = urwid.Pile([
             urwid.Text(message),
@@ -108,14 +108,14 @@ class ConfirmPopup(urwid.LineBox):
 
 
 class HelpPopup(urwid.LineBox):
-    spacer = (urwid.WEIGHT, 1, urwid.Text(u''))
+    spacer = (urwid.WEIGHT, 1, urwid.Text(''))
 
     signals = ['close']
 
     def __init__(self, text, title=None):
-        close_button = PopupButton(_(u'Close'))
+        close_button = PopupButton(_('Close'))
         urwid.connect_signal(close_button, 'click', self._close)
-        lines = text.split(u'\n')
+        lines = text.split('\n')
         self.content = urwid.SimpleFocusListWalker([urwid.Text(ln) for ln in lines])
         self.content.append(urwid.Divider())
         self.content.append(urwid.Columns([

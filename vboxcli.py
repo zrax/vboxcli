@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # vboxcli - curses GUI for VirtualBox
 # Copyright (C) 2016  Michael Hansen
 #
@@ -24,7 +24,7 @@ from vbcui import top_ui, VBCUIEventLoop
 from vbifc import VBoxWrapper
 
 def main(argv):
-    gettext.install('vboxcli', unicode=True)
+    gettext.install('vboxcli')
 
     # Ensure this gets set up before we start doing curses stuff that might
     # mess with the initial output

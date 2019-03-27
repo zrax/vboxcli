@@ -16,27 +16,27 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from . import VBoxWrapper, VBoxConstants
-import vb_enum
+from . import vb_enum
 
 def format_size(size):
     if size < 1024:
-        return u'{} B'.format(size)
+        return '{} B'.format(size)
     elif size < 1024**2:
-        return u'{:.2f} KiB'.format(size / 1024.0)
+        return '{:.2f} KiB'.format(size / 1024.0)
     elif size < 1024**3:
-        return u'{:.2f} MiB'.format(size / float(1024**2))
+        return '{:.2f} MiB'.format(size / float(1024**2))
     elif size < 1024**4:
-        return u'{:.2f} GiB'.format(size / float(1024**3))
+        return '{:.2f} GiB'.format(size / float(1024**3))
     elif size < 1024**5:
-        return u'{:.2f} TiB'.format(size / float(1024**4))
+        return '{:.2f} TiB'.format(size / float(1024**4))
     else:
-        return u'{:.2f} PiB'.format(size / float(1024**5))
+        return '{:.2f} PiB'.format(size / float(1024**5))
 
 def get_os_type(machine):
     vbox = VBoxWrapper()
     os_type = vbox.vbox.getGuestOSType(machine.OSTypeId)
     if os_type is None:
-        return _(u'Unknown')
+        return _('Unknown')
     return os_type.description
 
 def get_boot_order(machine):
@@ -45,9 +45,9 @@ def get_boot_order(machine):
     text = []
     for i in range(maxBootOrder):
         devname = vb_enum.DeviceType_text(machine.getBootOrder(i + 1))
-        if devname != u'':
+        if devname != '':
             text.append(devname)
-    return u', '.join(text)
+    return ', '.join(text)
 
 def get_accel_summary(machine):
     vbox = VBoxWrapper()
@@ -55,57 +55,57 @@ def get_accel_summary(machine):
     desc = []
     if vbox.host.getProcessorFeature(vbconst.ProcessorFeature_HWVirtEx):
         if machine.getHWVirtExProperty(vbconst.HWVirtExPropertyType_Enabled):
-            desc.append(_(u'VT-x/AMD-V'))
+            desc.append(_('VT-x/AMD-V'))
             if machine.getHWVirtExProperty(vbconst.HWVirtExPropertyType_NestedPaging):
-                desc.append(_(u'Nested Paging'))
+                desc.append(_('Nested Paging'))
     if machine.getCPUProperty(vbconst.CPUPropertyType_PAE):
-        desc.append(_(u'PAE/NX'))
+        desc.append(_('PAE/NX'))
     pvirt = vb_enum.ParavirtProvider_text(machine.getEffectiveParavirtProvider())
-    if pvirt != u'':
-        desc.append(_(u'{} Paravirtualization').format(pvirt))
-    return u', '.join(desc)
+    if pvirt != '':
+        desc.append(_('{} Paravirtualization').format(pvirt))
+    return ', '.join(desc)
 
 def get_storage_slot_name(bus, port, device):
     vbconst = VBoxConstants()
     text = [vb_enum.StorageBus_text(bus)]
     if bus == vbconst.StorageBus_IDE:
         if port == 0:
-            text.append(_(u'Primary'))
+            text.append(_('Primary'))
         elif port == 1:
-            text.append(_(u'Secondary'))
+            text.append(_('Secondary'))
         else:
-            text.append(_(u'<invalid>'))
+            text.append(_('<invalid>'))
         if device == 0:
-            text.append(_(u'Master'))
+            text.append(_('Master'))
         elif device == 1:
-            text.append(_(u'Slave'))
+            text.append(_('Slave'))
         else:
-            text.append(_(u'<invalid>'))
+            text.append(_('<invalid>'))
     elif bus == vbconst.StorageBus_Floppy:
-        text.append(_(u'Device {}').format(device))
+        text.append(_('Device {}').format(device))
     else:
-        text.append(_(u'Port {}').format(port))
-    return u' '.join(text)
+        text.append(_('Port {}').format(port))
+    return ' '.join(text)
 
 def get_attachment_desc(attachment):
     vbconst = VBoxConstants()
     if attachment.type == vbconst.DeviceType_DVD:
-        text = _(u'[Optical Drive]') + u' '
+        text = _('[Optical Drive]') + ' '
     else:
-        text = u''
+        text = ''
 
     # TODO:  The Qt client enumerates all media and looks at the root
     # medium for details -- here we just look at the directly referenced
     # medium (which may be snapshotted, etc)
     medium = attachment.medium
     if medium is None:
-        return text + _(u'Empty')
+        return text + _('Empty')
 
     if medium.hostDrive:
-        if medium.description == u'':
-            text += _(u"Host Drive '{}'").format(medium.location)
+        if medium.description == '':
+            text += _("Host Drive '{}'").format(medium.location)
         else:
-            text += _(u'Host Drive {} ({})').format(medium.description, medium.name)
+            text += _('Host Drive {} ({})').format(medium.description, medium.name)
         return text
 
     text += medium.name
@@ -119,22 +119,22 @@ def get_attachment_desc(attachment):
         except:
             encrypted = False
         if encrypted:
-            details.append(_(u'Encrypted'))
+            details.append(_('Encrypted'))
 
     mstate = medium.state
     if mstate == vbconst.MediumState_NotCreated:
-        details.append(_(u'Checking...'))
+        details.append(_('Checking...'))
     elif mstate == vbconst.MediumState_Inaccessible:
-        details.append(_(u'Inaccessible'))
+        details.append(_('Inaccessible'))
     elif devType == vbconst.DeviceType_HardDisk:
         details.append(format_size(medium.logicalSize))
     else:
         details.append(format_size(medium.size))
-    return u'{} ({})'.format(text, u', '.join(details))
+    return '{} ({})'.format(text, ', '.join(details))
 
 def get_network_adapter_desc(adapter):
     if not adapter.enabled:
-        return u''
+        return ''
 
     vbconst = VBoxConstants()
     text = vb_enum.NetworkAdapterType_text(adapter.adapterType)
@@ -150,28 +150,28 @@ def get_network_adapter_desc(adapter):
         details.append(adapter.genericDriver)
         names, props = adapter.getProperties(None)
         for i in range(len(names)):
-            details.append(u'{}={}'.format(names[i], props[i]))
+            details.append('{}={}'.format(names[i], props[i]))
     elif at_type == vbconst.NetworkAttachmentType_NATNetwork:
         details.append(adapter.NATNetwork)
 
-    return u'{} ({})'.format(text, u', '.join(details))
+    return '{} ({})'.format(text, ', '.join(details))
 
 def serial_port_name(port):
     if port.IRQ == 4 and port.IOBase == 0x3f8:
-        return _(u'COM1')
+        return _('COM1')
     if port.IRQ == 3 and port.IOBase == 0x2f8:
-        return _(u'COM2')
+        return _('COM2')
     if port.IRQ == 4 and port.IOBase == 0x3e8:
-        return _(u'COM3')
+        return _('COM3')
     if port.IRQ == 3 and port.IOBase == 0x2e8:
-        return _(u'COM4')
-    return _(u'Custom (I {}; A 0x{:X})').format(port.IRQ, port.IOBase)
+        return _('COM4')
+    return _('Custom (I {}; A 0x{:X})').format(port.IRQ, port.IOBase)
 
 def parallel_port_name(port):
     if port.IRQ == 7 and port.IOBase == 0x378:
-        return _(u'LPT1')
+        return _('LPT1')
     if port.IRQ == 5 and port.IOBase == 0x278:
-        return _(u'LPT2')
+        return _('LPT2')
     if port.IRQ == 2 and port.IOBase == 0x3bc:
-        return _(u'LPT1')
-    return _(u'Custom (I {}; A 0x{:X})').format(port.IRQ, port.IOBase)
+        return _('LPT1')
+    return _('Custom (I {}; A 0x{:X})').format(port.IRQ, port.IOBase)

@@ -24,7 +24,7 @@ class MachineNodeKey(object):
         self.machine = machine
 
     def get_display_text(self):
-        return [vb_enum.MachineState_icon(self.machine.state), u' ' + self.machine.name]
+        return [vb_enum.MachineState_icon(self.machine.state), ' ' + self.machine.name]
 
 
 class MachineGroupNodeKey(object):
@@ -33,9 +33,9 @@ class MachineGroupNodeKey(object):
         self.default_expanded = default_expanded
 
     def get_display_text(self):
-        if self.path == u'/':
-            return _(u'Virtual Machines')
-        return self.path[self.path.rfind(u'/')+1:]
+        if self.path == '/':
+            return _('Virtual Machines')
+        return self.path[self.path.rfind('/')+1:]
 
 
 class MachineNodeWidget(urwid.TreeWidget):
@@ -99,14 +99,14 @@ class MachineNode(urwid.TreeNode):
 
 class MachineGroupNode(urwid.ParentNode):
     def __init__(self, node, parent=None):
-        if isinstance(node, unicode):
+        if isinstance(node, str):
             # Mostly a shortcut for the initial node creation
             node = MachineGroupNodeKey(node)
 
-        if node.path == u'/':
+        if node.path == '/':
             depth = 0
         else:
-            depth = node.path.count(u'/')
+            depth = node.path.count('/')
         super(MachineGroupNode, self).__init__(node, key=node, parent=parent, depth=depth)
         self._machines = None
         self._group_count = None
@@ -138,27 +138,27 @@ class MachineGroupNode(urwid.ParentNode):
                 continue
             if group.startswith(self.path):
                 groupname = group[len(self.path):]
-                if u'/' in groupname:
+                if '/' in groupname:
                     continue
                 subgroups.append(group)
         self._group_count = len(subgroups)
 
         # Try to sort these to match the VirtualBox GUI's sorting
         # TODO: Allow this to be modified and saved as well
-        order = vbox.vbox.getExtraData(u'GUI/GroupDefinitions' + self.path)
+        order = vbox.vbox.getExtraData('GUI/GroupDefinitions' + self.path)
         children = []
         machines = self.machines[:]
         if order is not None:
-            order = order.split(u',')
+            order = order.split(',')
             for ob in order:
-                if ob.startswith(u'go=') or ob.startswith(u'gc='):
+                if ob.startswith('go=') or ob.startswith('gc='):
                     group = self.path + ob[3:]
-                    children.append(MachineGroupNodeKey(group, ob.startswith(u'go=')))
+                    children.append(MachineGroupNodeKey(group, ob.startswith('go=')))
                     try:
                         subgroups.remove(group)
                     except ValueError:
                         pass
-                elif ob.startswith(u'm='):
+                elif ob.startswith('m='):
                     for mach in machines:
                         if mach.id == ob[2:]:
                             children.append(MachineNodeKey(mach))
@@ -188,7 +188,7 @@ class MachineList(urwid.TreeListBox):
     signals = ['selection_changed']
 
     def __init__(self):
-        self.walker = urwid.TreeWalker(MachineGroupNode(u'/'))
+        self.walker = urwid.TreeWalker(MachineGroupNode('/'))
         super(MachineList, self).__init__(self.walker)
 
         urwid.connect_signal(self.walker, 'modified', self.walker_modified)
@@ -216,7 +216,7 @@ class MachineList(urwid.TreeListBox):
 
         # This should force the whole tree to be re-generated
         VBoxWrapper().drop_cache()
-        self.walker.set_focus(MachineGroupNode(u'/'))
+        self.walker.set_focus(MachineGroupNode('/'))
 
         node = self.walker.focus
         while node is not None:
